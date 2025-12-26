@@ -266,7 +266,7 @@ FIT-LIFE/
 ### Inderjeet Singh
 ### Full-Stack Developer (MERN)
 - GitHub: https://github.com/indxr1904
-- LinkedIn: https://linkedin.com/in/your-profile
+- LinkedIn: https://linkedin.com/in/inderjeet-singh-b71505250
 
 ## ⭐ Support
 
