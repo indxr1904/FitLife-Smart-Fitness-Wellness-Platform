@@ -1,4 +1,4 @@
-#🏋️‍♂️ FitLife – Smart Fitness & Wellness Platform
+# 🏋️‍♂️ FitLife – Smart Fitness & Wellness Platform
 
 FitLife is a full-stack fitness and wellness web application designed to help users track workouts, follow structured fitness plans, monitor progress, and stay motivated through a clean, modern, and responsive interface.
 
@@ -48,6 +48,45 @@ npm run dev            # Starts frontend at http://localhost:5173
  - 📧 Email: demo@fitlife.com
  - 🔐 Password: demo123
 
+| Component |	Port |	Description |
+|-----------|------|--------------|
+| Frontend (React) |	5173 |	User Interface |
+| Backend (Express API) |	3000 |	Authentication, Firebase |
+| MongoDB	| 27017 or Atlas |	Database |
 
+## 🏗 Project Structure
 
-
+```
+GYM-WEBSITE/
+│
+├── backend/
+│   ├── data/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── seeders/
+│   ├── .env
+│   ├── firebaseAdmin.js
+│   ├── server.js
+│   ├── package.json
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── utils/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── firebase.js
+│   ├── .env
+│   ├── index.html
+│   ├── vite.config.js
+│   └── package.json
+│
+├── .gitignore
+└── README.md
+```
