@@ -257,8 +257,6 @@ FIT-LIFE/
 - [MongoDB 6.x Manual](https://www.mongodb.com/docs/manual/)
 - [Mongoose ODM Docs](https://mongoosejs.com/docs/)
 - [JWT.io (JSON Web Tokens)](https://jwt.io/introduction)
-- [Nodemailer Documentation](https://nodemailer.com/about/)
-- [Mailtrap Email Testing Docs](https://help.mailtrap.io/)
 - [REST API Best Practices](https://restfulapi.net/)
 - [JavaScript ES6+ Reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [HTTP Status Codes Reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
