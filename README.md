@@ -73,26 +73,26 @@ VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ## ✨ Features
 ###👤 User
 
--Email & Google authentication (Firebase)
--Profile management with avatar
--Weekly workout plans
--Nutrition schedules
--Dashboard with active plan
--Responsive UI (mobile & desktop)
+- Email & Google authentication (Firebase)
+- Profile management with avatar
+- Weekly workout plans
+- Nutrition schedules
+- Dashboard with active plan
+- Responsive UI (mobile & desktop)
 
 ###🧠 Fitness Logic
 
--Beginner / Intermediate / Advanced plans
--Only one active plan at a time
--Replace plan confirmation
--Daily workout & diet fetching
+- Beginner / Intermediate / Advanced plans
+- Only one active plan at a time
+- Replace plan confirmation
+- Daily workout & diet fetching
 
 ### 🛠 Admin
 
--Manage exercises
--Manage diets
--Create workout plans
--Admin-only routes
+- Manage exercises
+- Manage diets
+- Create workout plans
+- Admin-only routes
 
 | Component |	Port |	Description |
 |-----------|------|--------------|
@@ -157,41 +157,61 @@ GYM-WEBSITE/
 
 ## 🔒 Security Notes
 
--Secrets removed from Git history
--Firebase keys managed via environment variables
--GitHub push protection enabled
--JWT-based API authentication
+- Secrets removed from Git history
+- Firebase keys managed via environment variables
+- GitHub push protection enabled
+- JWT-based API authentication
 
 ## 🧩 Tech Stack
 ### Frontend
 
--React (Vite)
--Tailwind CSS
--React Router
--Firebase Auth
--React Toastify
+- React (Vite)
+- Tailwind CSS
+- React Router
+- Firebase Auth
+- React Toastify
 
 ### Backend
 
--Node.js
--Express.js
--MongoDB Atlas
--JWT Authentication
--Firebase Admin SDK
+- Node.js
+- Express.js
+- MongoDB Atlas
+- JWT Authentication
+- Firebase Admin SDK
 
-###Deployment
+### Deployment
 
--Frontend: Vercel
--Backend: Render
--Database: MongoDB Atlas
+- Frontend: Vercel
+- Backend: Render
+- Database: MongoDB Atlas
+
+- ## 📖 Additional Documentation
+
+- [React.js Official Docs](https://react.dev/)
+- [Vite Build Tool Docs](https://vitejs.dev/guide/)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
+- [Express.js Routing Guide](https://expressjs.com/en/guide/routing.html)
+- [MongoDB 6.x Manual](https://www.mongodb.com/docs/manual/)
+- [Mongoose ODM Docs](https://mongoosejs.com/docs/)
+- [JWT.io (JSON Web Tokens)](https://jwt.io/introduction)
+- [Nodemailer Documentation](https://nodemailer.com/about/)
+- [Mailtrap Email Testing Docs](https://help.mailtrap.io/)
+- [REST API Best Practices](https://restfulapi.net/)
+- [JavaScript ES6+ Reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [HTTP Status Codes Reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 
 ## 👨‍💻 Author
 
 ### Inderjeet Singh
 ### Full-Stack Developer (MERN)
--GitHub: https://github.com/indxr1904
--LinkedIn: https://linkedin.com/in/your-profile
+- GitHub: https://github.com/indxr1904
+- LinkedIn: https://linkedin.com/in/your-profile
 
 ## ⭐ Support
 
 If you like this project, give it a ⭐ on GitHub.
+
+**Made with ❤️ to support coding community**
+
+**Happy Coding! 🎉**
