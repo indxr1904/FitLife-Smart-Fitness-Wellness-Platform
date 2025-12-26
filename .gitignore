@@ -11,6 +11,9 @@ frontend/dist/
 frontend/build/
 backend/dist/
 
+backend/serviceAccountKey.json
+
+
 # System files
 .DS_Store
 Thumbs.db
