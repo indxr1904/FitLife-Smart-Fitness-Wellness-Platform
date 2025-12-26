@@ -53,25 +53,71 @@ npm run dev            # Starts frontend at http://localhost:5173
 ## Backend (backend/.env)
 
 ```
+# ===============================
+# Server Configuration
+# ===============================
+# Port on which the backend server will run
 PORT=5000
+
+
+# ===============================
+# Database Configuration
+# ===============================
+# MongoDB connection string (MongoDB Atlas or local)
+# Example:
+# mongodb+srv://<username>:<password>@cluster.mongodb.net/fitlife
 MONGO_URI=your_mongodb_uri
+
+
+# ===============================
+# Authentication / Security
+# ===============================
+# Secret key used to sign JWT tokens
+# Keep this value strong and private
 JWT_SECRET=your_jwt_secret
+
+
+# ===============================
+# Firebase Configuration
+# ===============================
+# Firebase project ID (used by Firebase Admin SDK)
 FIREBASE_PROJECT_ID=your_project_id
+
 ```
 ## Frontend (frontend/.env)
 
 ```
+# ===============================
+# Firebase Configuration (Frontend)
+# ===============================
+
+# Firebase API key (public key used by frontend)
 VITE_FIREBASE_API_KEY=your_firebase_api_key
+
+# Firebase project ID
 VITE_PROJECT_ID=your_project_id
+
+# Firebase authentication domain
+# Example: your-project-id.firebaseapp.com
 VITE_FIREBASE_AUTH_DOMAIN=your_domain
+
+# Firebase storage bucket
+# Example: your-project-id.appspot.com
 VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+
+# Firebase messaging sender ID
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+
+# Firebase application ID
 VITE_FIREBASE_APP_ID=your_app_id
+
+# Firebase analytics measurement ID (optional)
 VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
 ```
 
 ## ✨ Features
-###👤 User
+### 👤 User
 
 - Email & Google authentication (Firebase)
 - Profile management with avatar
@@ -80,7 +126,7 @@ VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 - Dashboard with active plan
 - Responsive UI (mobile & desktop)
 
-###🧠 Fitness Logic
+### 🧠 Fitness Logic
 
 - Beginner / Intermediate / Advanced plans
 - Only one active plan at a time
@@ -105,54 +151,70 @@ VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ## Backend
 
 ```
+# Navigate to the backend directory
 cd backend
+
+# Install all backend dependencies listed in package.json
 npm install
+
+# Start the backend server in development mode (uses nodemon)
 npm run dev
+
+# Start backend in production mode
+npm start
+
 ```
 
 ## Frontend
 
 ```
+# Navigate to the frontend directory
 cd frontend
+
+# Install all frontend dependencies listed in package.json
 npm install
+
+# Start the frontend development server (Vite)
 npm run dev
+
 ```
 
 ## 🏗 Project Structure
 
 ```
-GYM-WEBSITE/
+FIT-LIFE/
 │
-├── backend/
-│   ├── data/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── seeders/
-│   ├── .env
-│   ├── firebaseAdmin.js
-│   ├── server.js
-│   ├── package.json
+├── backend/                    # Backend (Node.js + Express)
+│   ├── data/                   # Sample / static data files
+│   ├── middleware/             # Custom middleware (auth, admin, etc.)
+│   ├── models/                 # Mongoose models (User, Plan, Exercise, Diet)
+│   ├── routes/                 # API routes (auth, plans, workouts, admin)
+│   ├── seeders/                # Database seed scripts
+│   ├── .env                    # Backend environment variables (NOT committed)
+│   ├── firebaseAdmin.js        # Firebase Admin SDK configuration
+│   ├── server.js               # Main Express server entry point
+│   ├── package.json            # Backend dependencies and scripts
 │
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   ├── utils/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── firebase.js
-│   ├── .env
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
+├── frontend/                   # Frontend (React + Vite)
+│   ├── public/                 # Public static assets
+│   ├── src/                    # Application source code
+│   │   ├── assets/             # Images, icons, and media files
+│   │   ├── components/         # Reusable UI components
+│   │   ├── context/            # React Context providers (Auth, Global state)
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── pages/              # Application pages (Home, Login, Dashboard)
+│   │   ├── utils/              # Utility/helper functions
+│   │   ├── App.jsx             # Main React app component
+│   │   ├── main.jsx            # Application entry point
+│   │   └── firebase.js         # Firebase client configuration
+│   ├── .env                    # Frontend environment variables (NOT committed)
+│   ├── index.html              # HTML entry file
+│   ├── vite.config.js          # Vite configuration
+│   └── package.json            # Frontend dependencies and scripts
 │
-├── .gitignore
-└── README.md
+├── .gitignore                  # Files and folders ignored by Git
+└── README.md                   # Project documentation
+
 ```
 
 ## 🔒 Security Notes
