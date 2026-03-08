@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { auth, signInWithGooglePopup } from "../firebase";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
+import { API_BASE_URL } from "../../api/api";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -16,16 +17,13 @@ const Register = () => {
       const result = await signInWithGooglePopup();
       const firebaseToken = await result.user.getIdToken();
 
-      const res = await fetch(
-        "http://localhost:9000/api/users/google-register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${firebaseToken}`,
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/users/google-register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${firebaseToken}`,
+        },
+      });
 
       const data = await res.json();
 
@@ -52,7 +50,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:9000/api/users/signup", {
+      const res = await axios.post(`${API_BASE_URL}/api/users/signup`, {
         name,
         email,
         password,

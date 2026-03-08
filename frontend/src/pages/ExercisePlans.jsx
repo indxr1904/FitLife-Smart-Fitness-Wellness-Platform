@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GoArrowRight } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { API_BASE_URL } from "../../api/api";
 const ExercisePlans = () => {
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const ExercisePlans = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch("http://localhost:9000/api/admin/plan");
+        const res = await fetch(`${API_BASE_URL}/api/admin/plan`);
         const data = await res.json();
         setPlans(Array.isArray(data.data) ? data.data : []);
       } catch (error) {
@@ -35,7 +35,7 @@ const ExercisePlans = () => {
       if (!token) return;
 
       try {
-        const res = await fetch("http://localhost:9000/api/users/my-plans", {
+        const res = await fetch(`${API_BASE_URL}/api/users/my-plans`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -79,7 +79,7 @@ const ExercisePlans = () => {
   // 🔹 API call
   const submitPlan = async (planId) => {
     try {
-      const res = await fetch("http://localhost:9000/api/users/start-plan", {
+      const res = await fetch(`${API_BASE_URL}/api/users/start-plan`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

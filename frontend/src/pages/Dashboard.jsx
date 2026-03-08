@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import WorkoutDay from "./WorkoutDay";
+import { API_BASE_URL } from "../../api/api";
 
 const Dashboard = () => {
   const [todayPlan, setTodayPlan] = useState(null);
@@ -10,7 +11,7 @@ const Dashboard = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:9000/api/users/profile", {
+        const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -29,7 +30,7 @@ const Dashboard = () => {
     const fetchPlan = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:9000/api/users/today-plan", {
+        const res = await fetch(`${API_BASE_URL}/api/users/today-plan`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
