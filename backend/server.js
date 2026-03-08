@@ -12,7 +12,11 @@ const planRoutes = require("./routes/planRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
 app.use(express.json());
 
 mongoose
