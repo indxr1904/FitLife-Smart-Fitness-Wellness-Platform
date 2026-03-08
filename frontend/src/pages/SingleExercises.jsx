@@ -7,9 +7,7 @@ const Exercises = () => {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const res = await fetch(
-          `${API_BASE_URL}http://localhost:9000/api/admin/exercise`,
-        );
+        const res = await fetch(`${API_BASE_URL}/api/admin/exercise`);
         const data = await res.json();
         setExercises(data.data || []);
       } catch (err) {
