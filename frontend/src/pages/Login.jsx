@@ -4,6 +4,7 @@ import axios from "axios";
 import { signInWithGooglePopup } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
 import { auth } from "../firebase";
+import { API_BASE_URL } from "../../api/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +17,7 @@ const Login = () => {
       const result = await signInWithGooglePopup();
       const firebaseToken = await result.user.getIdToken();
 
-      const res = await fetch("http://localhost:9000/api/users/google-login", {
+      const res = await fetch(`${API_BASE_URL}/api/users/google-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
