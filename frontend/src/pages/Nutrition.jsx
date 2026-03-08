@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../api/api";
 
 const Nutrition = () => {
   const [meals, setMeals] = useState({});
@@ -7,7 +8,7 @@ const Nutrition = () => {
   useEffect(() => {
     const fetchDiets = async () => {
       try {
-        const res = await fetch("http://localhost:9000/api/admin/diet");
+        const res = await fetch(`${API_BASE_URL}/api/admin/diet`);
         const data = await res.json();
 
         const grouped = {};

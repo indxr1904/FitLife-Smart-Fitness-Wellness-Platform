@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { API_BASE_URL } from "../../../api/api";
 
 const AddPlan = () => {
   const navigate = useNavigate();
@@ -21,8 +22,8 @@ const AddPlan = () => {
     const fetchData = async () => {
       try {
         const [exRes, dietRes] = await Promise.all([
-          axios.get("http://localhost:9000/api/admin/exercise"),
-          axios.get("http://localhost:9000/api/admin/diet"),
+          axios.get(`${API_BASE_URL}/api/admin/exercise`),
+          axios.get(`${API_BASE_URL}/api/admin/diet`),
         ]);
         setExercises(exRes.data.data || []);
         setDiets(dietRes.data.data || []);
@@ -35,7 +36,7 @@ const AddPlan = () => {
 
   const handleDayToggle = (day) => {
     setActiveDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
 
     setSchedule((prev) => {
@@ -62,7 +63,7 @@ const AddPlan = () => {
         : { dietId: [], mealType: "", mealTime: "" };
 
     const updated = schedule.map((d) =>
-      d.dayName === dayName ? { ...d, [type]: [...d[type], newEntry] } : d
+      d.dayName === dayName ? { ...d, [type]: [...d[type], newEntry] } : d,
     );
     setSchedule(updated);
   };
@@ -71,7 +72,7 @@ const AddPlan = () => {
     const updated = schedule.map((day) => {
       if (day.dayName === dayName) {
         const updatedArray = day[type].map((item, i) =>
-          i === index ? { ...item, [field]: value } : item
+          i === index ? { ...item, [field]: value } : item,
         );
         return { ...day, [type]: updatedArray };
       }
@@ -88,7 +89,7 @@ const AddPlan = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:9000/api/admin/plan", {
+      await axios.post(`${API_BASE_URL}/api/admin/plan`, {
         name: planName,
         description,
         image,
@@ -250,7 +251,7 @@ const AddPlan = () => {
                               "exercises",
                               i,
                               "exerciseId",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -273,7 +274,7 @@ const AddPlan = () => {
                               "exercises",
                               i,
                               "videoURL",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -328,8 +329,8 @@ const AddPlan = () => {
                               "dietId",
                               Array.from(
                                 e.target.selectedOptions,
-                                (option) => option.value
-                              )
+                                (option) => option.value,
+                              ),
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -369,7 +370,7 @@ const AddPlan = () => {
                               "diets",
                               i,
                               "mealTime",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -385,7 +386,7 @@ const AddPlan = () => {
                               "diets",
                               i,
                               "mealType",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"

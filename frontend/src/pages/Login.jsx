@@ -50,7 +50,7 @@ const Login = () => {
     await auth.signOut();
 
     try {
-      const res = await axios.post("http://localhost:9000/api/users/login", {
+      const res = await axios.post(`${API_BASE_URL}/api/users/login`, {
         email,
         password,
       });

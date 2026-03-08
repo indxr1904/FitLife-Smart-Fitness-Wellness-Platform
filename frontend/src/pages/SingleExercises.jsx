@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { API_BASE_URL } from "../../api/api";
 const Exercises = () => {
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -7,7 +7,9 @@ const Exercises = () => {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const res = await fetch("http://localhost:9000/api/admin/exercise");
+        const res = await fetch(
+          `${API_BASE_URL}http://localhost:9000/api/admin/exercise`,
+        );
         const data = await res.json();
         setExercises(data.data || []);
       } catch (err) {

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../../../api/api";
 
 const EditDiet = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const EditDiet = () => {
     }
 
     axios
-      .get(`http://localhost:9000/api/admin/diet/${id}`)
+      .get(`${API_BASE_URL}/api/admin/diet/${id}`)
       .then((res) => {
         const diet = res.data.data;
         setItems(diet.items || "");
@@ -36,7 +37,7 @@ const EditDiet = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:9000/api/admin/diet/${id}`, {
+      await axios.put(`${API_BASE_URL}/api/admin/diet/${id}`, {
         items,
         calories,
         protein,

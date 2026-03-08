@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../api/api";
 
 const AddExercise = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const AddExercise = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:9000/api/admin/exercise`, {
+      await axios.post(`${API_BASE_URL}/api/admin/exercise`, {
         title,
         description,
         reps,

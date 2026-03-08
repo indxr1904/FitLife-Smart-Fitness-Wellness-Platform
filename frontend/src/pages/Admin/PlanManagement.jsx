@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { API_BASE_URL } from "../../../api/api";
 const PlanManagement = () => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
@@ -10,7 +10,7 @@ const PlanManagement = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch("http://localhost:9000/api/admin/plan");
+        const res = await fetch(`${API_BASE_URL}/api/admin/plan`);
         const result = await res.json();
         const allPlans = result?.data || [];
         setPlans(allPlans);
@@ -35,11 +35,11 @@ const PlanManagement = () => {
   const handleDelete = async (id) => {
     try {
       const confirmDelete = window.confirm(
-        "Are you sure you want to delete this plan?"
+        "Are you sure you want to delete this plan?",
       );
       if (!confirmDelete) return;
 
-      const res = await fetch(`http://localhost:9000/api/admin/plan/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/plan/${id}`, {
         method: "DELETE",
       });
       const result = await res.json();

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { API_BASE_URL } from "../../../api/api";
 
 const EditPlan = () => {
   const { id } = useParams();
@@ -22,9 +23,9 @@ const EditPlan = () => {
     const fetchData = async () => {
       try {
         const [exRes, dietRes, planRes] = await Promise.all([
-          axios.get(`http://localhost:9000/api/admin/exercise`),
-          axios.get(`http://localhost:9000/api/admin/diet`),
-          axios.get(`http://localhost:9000/api/admin/plan/${id}`),
+          axios.get(`${API_BASE_URL}/api/admin/exercise`),
+          axios.get(`${API_BASE_URL}/api/admin/diet`),
+          axios.get(`${API_BASE_URL}/api/admin/plan/${id}`),
         ]);
         setExercises(exRes.data.data || []);
         setDiets(dietRes.data.data || []);
@@ -68,7 +69,7 @@ const EditPlan = () => {
         : { dietId: [], mealType: "", mealTime: "" };
 
     const updated = schedule.map((d) =>
-      d.dayName === dayName ? { ...d, [type]: [...d[type], newEntry] } : d
+      d.dayName === dayName ? { ...d, [type]: [...d[type], newEntry] } : d,
     );
     setSchedule(updated);
   };
@@ -77,7 +78,7 @@ const EditPlan = () => {
     const updated = schedule.map((day) => {
       if (day.dayName === dayName) {
         const updatedArray = day[type].map((item, i) =>
-          i === index ? { ...item, [field]: value } : item
+          i === index ? { ...item, [field]: value } : item,
         );
         return { ...day, [type]: updatedArray };
       }
@@ -110,7 +111,7 @@ const EditPlan = () => {
       })),
     }));
 
-    await axios.put(`http://localhost:9000/api/admin/plan/${id}`, {
+    await axios.put(`${API_BASE_URL}/api/admin/plan/${id}`, {
       name: planName,
       description,
       image,
@@ -273,7 +274,7 @@ const EditPlan = () => {
                               "exercises",
                               i,
                               "exerciseId",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -296,7 +297,7 @@ const EditPlan = () => {
                               "exercises",
                               i,
                               "videoURL",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -362,8 +363,8 @@ const EditPlan = () => {
                               "dietId",
                               Array.from(
                                 e.target.selectedOptions,
-                                (option) => option.value
-                              )
+                                (option) => option.value,
+                              ),
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -403,7 +404,7 @@ const EditPlan = () => {
                               "diets",
                               i,
                               "mealTime",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"
@@ -419,7 +420,7 @@ const EditPlan = () => {
                               "diets",
                               i,
                               "mealType",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full p-2 bg-[#121812] border border-[#385538] rounded-md"

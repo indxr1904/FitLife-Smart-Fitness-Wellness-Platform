@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../api/api";
 
 const DietManagement = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const DietManagement = () => {
     const fetchExercise = async () => {
       // const token = localStorage.getItem("user");
       try {
-        const res = await fetch("http://localhost:9000/api/admin/diet");
+        const res = await fetch(`${API_BASE_URL}/api/admin/diet`);
         const result = await res.json();
         const allData = result?.data || [];
         setDiets(allData);
@@ -37,7 +38,7 @@ const DietManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:9000/api/admin/diet/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/diet/${id}`, {
         method: "DELETE",
       });
       const result = await res.json();

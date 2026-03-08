@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../api/api";
 
 const AddDiet = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const AddDiet = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:9000/api/admin/diet", {
+      await axios.post(`${API_BASE_URL}/api/admin/diet`, {
         items,
         calories,
         protein,

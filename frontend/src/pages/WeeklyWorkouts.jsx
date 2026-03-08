@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import WorkoutDay from "./WorkoutDay";
 import DietPlan from "./DietPlan";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL } from "../../api/api";
 
 const WeeklyWorkout = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const WeeklyWorkout = () => {
   useEffect(() => {
     const fetchPlan = async () => {
       try {
-        const res = await fetch(`http://localhost:9000/api/admin/plan/${id}`);
+        const res = await fetch(`${API_BASE_URL}/api/admin/plan/${id}`);
         const data = await res.json();
         setPlan(data.data);
         setActiveTabs(data.data.schedule.map(() => "exercises"));

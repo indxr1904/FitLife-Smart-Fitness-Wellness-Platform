@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../api/api";
 
 const ExerciseManagement = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const ExerciseManagement = () => {
     const fetchExercise = async () => {
       // const token = localStorage.getItem("user");
       try {
-        const res = await fetch("http://localhost:9000/api/admin/exercise");
+        const res = await fetch(`${API_BASE_URL}/api/admin/exercise`);
         const result = await res.json();
         const allData = result?.data || [];
         setExercise(allData);
@@ -37,12 +38,9 @@ const ExerciseManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(
-        `http://localhost:9000/api/admin/exercise/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/admin/exercise/${id}`, {
+        method: "DELETE",
+      });
       const result = await res.json();
       if (result.status === "success") {
         setExercise((prev) => prev.filter((item) => item._id !== id));
