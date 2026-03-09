@@ -22,7 +22,7 @@ const AddExercise = () => {
         sets,
         detail,
       });
-      alert("Updated Successfully!");
+      alert("Added Successfully!");
       navigate("/admin/exercisemanagement");
     } catch (error) {
       console.error(error);
@@ -39,7 +39,7 @@ const AddExercise = () => {
     <div className="min-h-screen text-white px-4 sm:px-6 md:px-10 py-8 ">
       <div className="max-w-4xl mx-auto bg-[#1a241a] p-6 sm:p-8 rounded-2xl shadow-lg">
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-center sm:text-left">
-          Edit Exercise
+          Add Exercise
         </h1>
 
         <p className="text-gray-400 text-sm sm:text-base mb-6 text-center sm:text-left">
@@ -139,7 +139,7 @@ const AddExercise = () => {
               type="submit"
               className="rounded-lg bg-[#00ff57] hover:bg-[#1cf261] text-black px-4 py-2 font-semibold text-sm sm:text-base transition-all"
             >
-              Save Changes
+              Save
             </button>
             <button
               onClick={handleCancel}

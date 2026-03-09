@@ -9,6 +9,7 @@ const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
@@ -36,6 +37,7 @@ const Register = () => {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+
       setUser(data.user);
       navigate("/dashboard");
     } catch (error) {
@@ -58,7 +60,9 @@ const Register = () => {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+
       setUser(res.data.user);
+
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
@@ -67,99 +71,121 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-25">
-      <div className="w-full flex flex-col justify-center items-center p-8 md:p-12">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md bg-[#111811] text-white p-8 rounded-lg border border-gray-700 shadow-sm"
-        >
-          {/* Header */}
-          <div className="flex justify-center mb-6">
-            <h2 className="text-xl font-medium">FitLife</h2>
-          </div>
+    <div className="min-h-screen bg-[#030804] text-white flex items-center justify-center px-4">
+      <div className="grid lg:grid-cols-2 w-full max-w-6xl bg-[#080f09] border border-[#182219] rounded-xl overflow-hidden shadow-2xl">
+        {/* Left Branding Section */}
+        <div className="hidden lg:flex flex-col justify-center px-14 bg-gradient-to-br from-[#030804] to-[#08140a]">
+          <h1 className="text-5xl font-bold mb-6 leading-tight">
+            Join <span className="text-[#00ff57] italic">FitLife</span>
+          </h1>
 
-          <h2 className="text-2xl font-bold text-center mb-6">Hey there!</h2>
-
-          <p className="text-center mb-6 ">
-            Enter your details to create your account.
+          <p className="text-gray-400 text-lg leading-relaxed">
+            Create your account and unlock powerful workout tracking, AI-powered
+            insights, and a supportive fitness community.
           </p>
 
-          {/* Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border-gray-700 border rounded"
-              placeholder="Enter your full name"
-              required
-            />
+          <div className="mt-10 text-sm text-gray-500">
+            Your journey to smarter fitness starts today.
+          </div>
+        </div>
+
+        {/* Register Form */}
+        <div className="flex flex-col justify-center px-8 py-10 md:px-12">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">Create Account</h2>
+            <p className="text-gray-400 text-sm">
+              Fill in your details to get started
+            </p>
           </div>
 
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border-gray-700 border rounded"
-              placeholder="Enter your email address"
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name */}
+            <div>
+              <label className="text-sm text-gray-300 mb-1 block">
+                Full Name
+              </label>
 
-          {/* Password */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border-gray-700 border rounded"
-              placeholder="Create a password"
-              required
-            />
-          </div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Enter your name"
+                className="w-full bg-[#030804] border border-[#1c2a1f] rounded-md px-4 py-2.5 focus:outline-none focus:border-[#00ff57] transition"
+              />
+            </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="w-full bg-[#00ff57] hover:bg-[#25d660] text-black p-2 rounded-lg font-semibold cursor-pointer transition"
-          >
-            Register
-          </button>
+            {/* Email */}
+            <div>
+              <label className="text-sm text-gray-300 mb-1 block">
+                Email Address
+              </label>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center">
-            <hr className="grow border-gray-300" />
-            <span className="px-3 text-gray-500 text-sm">or</span>
-            <hr className="grow border-gray-300" />
-          </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+                className="w-full bg-[#030804] border border-[#1c2a1f] rounded-md px-4 py-2.5 focus:outline-none focus:border-[#00ff57] transition"
+              />
+            </div>
 
-          {/* Google Signup */}
-          <button
-            type="button"
-            onClick={handleGoogleRegister}
-            className="w-full flex items-center justify-center gap-3 border border-gray-700 p-2 rounded-lg hover:bg-gray-700 hover:text-black cursor-pointer transition"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google logo"
-              className="w-5 h-5"
-            />
-            <span className="font-semibold text-white">Signup with Google</span>
-          </button>
+            {/* Password */}
+            <div>
+              <label className="text-sm text-gray-300 mb-1 block">
+                Password
+              </label>
 
-          {/* Footer */}
-          <p className="mt-6 text-center text-sm">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Create a password"
+                className="w-full bg-[#030804] border border-[#1c2a1f] rounded-md px-4 py-2.5 focus:outline-none focus:border-[#00ff57] transition"
+              />
+            </div>
+
+            {/* Register Button */}
+            <button
+              type="submit"
+              className="w-full bg-[#00ff57] hover:bg-[#00e64d] text-black py-2.5 rounded-md font-semibold transition"
+            >
+              Register
+            </button>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-4">
+              <div className="flex-1 h-[1px] bg-[#182219]" />
+              <span className="text-sm text-gray-500">or</span>
+              <div className="flex-1 h-[1px] bg-[#182219]" />
+            </div>
+
+            {/* Google Register */}
+            <button
+              type="button"
+              onClick={handleGoogleRegister}
+              className="w-full flex items-center justify-center gap-3 border border-[#1c2a1f] py-2.5 rounded-md hover:border-[#00ff57] transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+
+              <span className="text-sm">Signup with Google</span>
+            </button>
+          </form>
+
+          {/* Login Redirect */}
+          <p className="text-center text-sm text-gray-400 mt-6">
             Already have an account?
-            <Link to="/login" className="text-[#00ff57] ml-1">
+            <Link to="/login" className="text-[#00ff57] ml-1 hover:underline">
               Login
             </Link>
           </p>
-        </form>
+        </div>
       </div>
     </div>
   );

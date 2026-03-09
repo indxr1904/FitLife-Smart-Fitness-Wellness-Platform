@@ -1,113 +1,108 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { HiOutlineMenu } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
   const toggleNavDrawer = () => setNavDrawerOpen(!navDrawerOpen);
 
-  const isHomePage = location.pathname === "/";
-
-  useEffect(() => {
-    if (!isHomePage) {
-      setScrolled(true);
-      return;
-    }
-
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isHomePage]);
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Features", path: "/features" },
+    { name: "Contact", path: "/contact" },
+    { name: "Support", path: "/support" },
+  ];
 
   return (
     <>
-      <nav
-        className={`fixed top-[40px] left-0 w-full z-40 transition-all duration-500 ease-in-out ${
-          isHomePage
-            ? scrolled
-              ? "bg-[#0b0f0c]/95 backdrop-blur-md shadow-md"
-              : "bg-transparent"
-            : "bg-[#0b0f0c] border-b border-gray-800 shadow-md"
-        }`}
-      >
+      {/* NAVBAR */}
+      <nav className="fixed top-0 left-0 w-full z-50 bg-[#030804] border-b border-[#182219] backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-5 md:px-8">
-          {/* Left: Logo */}
+          {/* Logo */}
           <Link
             to="/"
-            className="text-2xl md:text-3xl font-bold text-white tracking-tight"
+            className="text-2xl md:text-3xl font-bold tracking-tight text-white"
+            style={{ fontFamily: "Barlow Condensed, sans-serif" }}
           >
-            FitLife
+            <span className="text-[#00ff57] italic">Fit</span>Life
           </Link>
 
-          <div className="flex items-center space-x-6">
-            <div className="hidden md:flex items-center space-x-8 text-white font-medium">
-              {["Home", "Features", "Contact", "Support"].map((item) => (
-                <Link
-                  key={item}
-                  to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-                  className={`transition-colors duration-300 text-base hover:text-[#00ff57] ${
-                    location.pathname ===
-                    (item === "Home" ? "/" : `/${item.toLowerCase()}`)
-                      ? "text-[#00ff57]"
-                      : "text-white"
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8 text-white font-medium">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`relative text-sm tracking-wide transition-colors duration-300
+                ${
+                  location.pathname === item.path
+                    ? "text-[#00ff57]"
+                    : "text-gray-300 hover:text-white"
+                }`}
+              >
+                {item.name}
+
+                {/* Neon underline */}
+                <span
+                  className={`absolute left-0 -bottom-1 h-[2px] bg-[#00ff57] transition-all duration-300 ${
+                    location.pathname === item.path
+                      ? "w-full"
+                      : "w-0 group-hover:w-full"
                   }`}
-                >
-                  {item}
-                </Link>
-              ))}
-            </div>
-
-            <Link to="/login" className="hidden md:block">
-              <button className="px-5 py-2.5 bg-[#00ff57] text-black font-semibold rounded-md cursor-pointer hover:bg-[#00e64d] transition duration-300">
-                Login
-              </button>
-            </Link>
-
-            <button
-              className="md:hidden block text-white"
-              onClick={toggleNavDrawer}
-            >
-              <HiOutlineMenu className="h-7 w-7" />
-            </button>
+                />
+              </Link>
+            ))}
           </div>
+
+          {/* Login Button */}
+          <Link to="/login" className="hidden md:block">
+            <button className="px-6 py-2.5 bg-[#00ff57] text-black font-semibold rounded-md hover:bg-[#00e64d] transition duration-300">
+              Login
+            </button>
+          </Link>
+
+          {/* Mobile Menu Button */}
+          <button className="md:hidden text-white" onClick={toggleNavDrawer}>
+            <HiOutlineMenu className="h-7 w-7" />
+          </button>
         </div>
       </nav>
 
+      {/* MOBILE DRAWER */}
       <div
-        className={`fixed top-0 right-0 w-3/4 sm:w-1/2 h-full bg-[#0b0f0c] text-white shadow-lg transform transition-transform duration-300 z-50 ${
+        className={`fixed top-0 right-0 w-3/4 sm:w-1/2 h-full bg-[#030804] border-l border-[#182219] text-white shadow-lg transform transition-transform duration-300 z-50 ${
           navDrawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex justify-between items-center p-5 border-b border-gray-700">
+        <div className="flex justify-between items-center p-5 border-b border-[#182219]">
           <h2 className="text-lg font-semibold">Menu</h2>
+
           <button onClick={toggleNavDrawer}>
             <IoMdClose className="h-6 w-6 text-gray-400 hover:text-white transition" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
-          {["Home", "Features", "Contact", "Support"].map((item) => (
+          {navItems.map((item) => (
             <Link
-              key={item}
-              to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+              key={item.name}
+              to={item.path}
               onClick={toggleNavDrawer}
               className={`block text-lg transition-colors duration-300 ${
-                location.pathname ===
-                (item === "Home" ? "/" : `/${item.toLowerCase()}`)
+                location.pathname === item.path
                   ? "text-[#00ff57]"
                   : "text-gray-300 hover:text-[#00ff57]"
               }`}
             >
-              {item}
+              {item.name}
             </Link>
           ))}
         </div>
 
-        <div className="p-6 border-t border-gray-700">
+        <div className="p-6 border-t border-[#182219]">
           <Link to="/login" onClick={toggleNavDrawer}>
             <button className="w-full bg-[#00ff57] text-black font-semibold py-3 rounded-md hover:bg-[#00e64d] transition">
               Login
@@ -116,10 +111,11 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Overlay */}
       {navDrawerOpen && (
         <div
           onClick={toggleNavDrawer}
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/60 z-40"
         />
       )}
     </>

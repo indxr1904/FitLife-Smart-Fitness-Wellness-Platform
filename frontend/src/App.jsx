@@ -16,6 +16,7 @@ import Nutrition from "./pages/Nutrition";
 import Profile from "./pages/Profile";
 import WeeklyWorkout from "./pages/WeeklyWorkouts";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import UserManagement from "./pages/Admin/UserManagement";
 import AdminRoute from "./components/common/AdminRoutes/AdminRoute";
 import ExerciseManagement from "./pages/Admin/ExerciseManagement";
 import AdminLayouts from "./pages/Admin/Layout/AdminLayout";
@@ -133,6 +134,7 @@ export default function App() {
             element={<ExerciseManagement />}
           />
           <Route path="/admin/editexercise/:id" element={<EditExercise />} />
+          <Route path="/admin/usermanagement" element={<UserManagement />} />
           <Route path="/admin/addexercise" element={<AddExercise />} />
           <Route path="/admin/dietmanagement" element={<DietManagement />} />
           <Route path="/admin/adddiet" element={<AddDiet />} />

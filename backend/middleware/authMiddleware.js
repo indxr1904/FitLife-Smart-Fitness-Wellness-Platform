@@ -59,7 +59,8 @@ export const authMiddleware = async (req, res, next) => {
 
 // Middleware to check admin privileges
 export const adminAuth = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+  console.log("req.user:", req.user); // 👈 add this temporarily
+  if (req.user && req.user.isAdmin === true) {
     next();
   } else {
     res.status(401).json({ message: "Not authorized as an admin" });

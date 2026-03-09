@@ -22,8 +22,123 @@ const Exercises = () => {
 
   if (loading) {
     return (
-      <div className="text-center mt-20 text-gray-400">
-        Loading exercises...
+      <div className="bg-[#0b0f0c] min-h-screen flex items-center justify-center">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "24px",
+          }}
+        >
+          {/* Spinning ring */}
+          <div style={{ position: "relative", width: "64px", height: "64px" }}>
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                border: "2px solid #1e2d22",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                border: "2px solid transparent",
+                borderTopColor: "#00ff57",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: "8px",
+                borderRadius: "50%",
+                border: "2px solid transparent",
+                borderTopColor: "#9ca3af",
+                animation: "spin 1.5s linear infinite reverse",
+              }}
+            />
+            {/* Center dot */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: "#00ff57",
+                animation: "pulse 1s ease-in-out infinite",
+              }}
+            />
+          </div>
+
+          {/* Text */}
+          <div style={{ textAlign: "center" }}>
+            <p
+              style={{
+                color: "#ffffff",
+                fontSize: "16px",
+                fontWeight: "600",
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                margin: 0,
+              }}
+            >
+              Loading
+            </p>
+            <p
+              style={{
+                color: "#4b5563",
+                fontSize: "12px",
+                letterSpacing: "0.1em",
+                marginTop: "6px",
+              }}
+            >
+              Please wait...
+            </p>
+          </div>
+
+          {/* Bar */}
+          <div
+            style={{
+              width: "120px",
+              height: "2px",
+              backgroundColor: "#1e2d22",
+              borderRadius: "999px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "40%",
+                backgroundColor: "#00ff57",
+                borderRadius: "999px",
+                animation: "slide 1.2s ease-in-out infinite",
+              }}
+            />
+          </div>
+        </div>
+
+        <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } }
+        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+      `}</style>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!exercises.length) {
+    return (
+      <div className="bg-[#0b0f0c] min-h-screen text-white flex items-center justify-center">
+        <p className="text-gray-400">No exercises found.</p>
       </div>
     );
   }

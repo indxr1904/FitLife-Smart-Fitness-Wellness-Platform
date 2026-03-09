@@ -41,7 +41,7 @@ const Navbar = () => {
         }`}
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-5 md:px-8">
-          <Link to="/dashboard" className="text-3xl font-bold text-white">
+          <Link to="/" className="text-3xl font-bold text-white">
             FitLife
           </Link>
 
@@ -131,7 +131,7 @@ const Navbar = () => {
               >
                 {item}
               </Link>
-            )
+            ),
           )}
         </div>
       </div>

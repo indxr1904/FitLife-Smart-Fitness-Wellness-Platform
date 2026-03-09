@@ -10,6 +10,8 @@ const exerciseRoutes = require("./routes/exerciseRoutes");
 const dietRoutes = require("./routes/dietRoutes");
 const planRoutes = require("./routes/planRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const dashBoardRoutes = require("../backend/routes/adminDashboard");
+const adminManagement = require("./routes/adminManagement");
 
 const app = express();
 app.use(
@@ -38,6 +40,8 @@ app.use("/api", contactRoutes);
 app.use("/api/users/profile", adminRoutes);
 
 // Admin Page Routes
+app.use("/api/admin", dashBoardRoutes);
+app.use("/api/admin/users", adminManagement);
 app.use("/api/admin/exercise", exerciseRoutes);
 app.use("/api/admin/diet", dietRoutes);
 app.use("/api/admin/plan", planRoutes);
