@@ -2,29 +2,226 @@ import { useEffect, useState } from "react";
 import WorkoutDay from "./WorkoutDay";
 import { API_BASE_URL } from "../../api/api";
 
+const getGreeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return "Good Morning";
+  if (h < 17) return "Good Afternoon";
+  return "Good Evening";
+};
+const getDayName = () =>
+  new Date().toLocaleDateString("en-US", { weekday: "long" });
+const getDateStr = () =>
+  new Date().toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+const MacroPill = ({ label, value, color }) => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      background: "#0f1a10",
+      border: `1px solid ${color}35`,
+      borderRadius: 10,
+      padding: "12px 18px",
+      minWidth: 76,
+    }}
+  >
+    <span
+      style={{
+        fontFamily: "'JetBrains Mono',monospace",
+        fontSize: 16,
+        fontWeight: 700,
+        color,
+      }}
+    >
+      {value}
+    </span>
+    <span
+      style={{
+        fontSize: 11,
+        color: "#6b7280",
+        marginTop: 4,
+        textTransform: "uppercase",
+        letterSpacing: "0.08em",
+        fontFamily: "'JetBrains Mono',monospace",
+      }}
+    >
+      {label}
+    </span>
+  </div>
+);
+
+const DietCard = ({ diet, index }) => {
+  const [open, setOpen] = useState(true);
+  const mealColors = {
+    breakfast: "#00ff57",
+    lunch: "#00cfff",
+    dinner: "#ff9f43",
+    snack: "#ff6b9d",
+  };
+  const color = mealColors[diet.mealType?.toLowerCase()] || "#00ff57";
+
+  return (
+    <div
+      style={{
+        background: "#0f1a10",
+        border: "1px solid #1e2d1e",
+        borderRadius: 14,
+        overflow: "hidden",
+        animation: `fadeUp 0.5s ease forwards ${index * 0.08}s`,
+        opacity: 0,
+      }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "18px 22px",
+          color: "white",
+          fontFamily: "'Sora',sans-serif",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: color,
+              flexShrink: 0,
+            }}
+          />
+          <div style={{ textAlign: "left" }}>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                textTransform: "capitalize",
+                color: "#f0f0f0",
+              }}
+            >
+              {diet.mealType}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "#6b7280",
+                marginTop: 3,
+                fontFamily: "'JetBrains Mono',monospace",
+              }}
+            >
+              {diet.mealTime}
+            </div>
+          </div>
+        </div>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#6b7280"
+          strokeWidth="2"
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.3s ease",
+            flexShrink: 0,
+          }}
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            padding: "0 22px 22px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          {diet.dietId?.map((d, i) => (
+            <div
+              key={d._id || i}
+              style={{
+                background: "#141f14",
+                border: "1px solid #1e2d1e",
+                borderRadius: 10,
+                padding: "16px 18px",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "#e5e7eb",
+                  marginBottom: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                {d.items?.join(", ")}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 10,
+                  marginBottom: 12,
+                }}
+              >
+                <MacroPill label="kcal" value={d.calories} color="#00ff57" />
+                <MacroPill label="protein" value={d.protein} color="#00cfff" />
+                <MacroPill label="carbs" value={d.carbs} color="#ff9f43" />
+                <MacroPill label="fats" value={d.fats} color="#ff6b9d" />
+              </div>
+              {d.purpose && (
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: "#6b7280",
+                    fontStyle: "italic",
+                    fontFamily: "'JetBrains Mono',monospace",
+                  }}
+                >
+                  {d.purpose}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const [todayPlan, setTodayPlan] = useState(null);
   const [profile, setProfile] = useState({});
   const [activeTab, setActiveTab] = useState("exercises");
   const [loading, setLoading] = useState(true);
-  const [plans] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        const data = await res.json();
-        setProfile(data);
-      } catch (error) {
-        console.error("Profile fetch error:", error);
+        setProfile(await res.json());
+      } catch (err) {
+        console.error(err);
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -32,158 +229,618 @@ const Dashboard = () => {
     const fetchPlan = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const res = await fetch(`${API_BASE_URL}/api/users/today-plan`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
         setTodayPlan(data.schedule);
-      } catch (error) {
-        console.error("Today plan fetch error:", error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPlan();
   }, []);
 
   if (loading) {
     return (
-      <div className="bg-[#0b0f0c] min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 border-2 border-[#1e2d22] rounded-full" />
-            <div className="absolute inset-0 border-2 border-transparent border-t-[#00ff57] rounded-full animate-spin" />
-            <div className="absolute inset-2 border-2 border-transparent border-t-gray-400 rounded-full animate-spin" />
-
-            <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-[#00ff57] rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#0a0f0b",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <style>{`
+          @keyframes spin  { to { transform: rotate(360deg); } }
+          @keyframes pulse { 0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.8)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)} }
+          @keyframes slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+        `}</style>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 24,
+          }}
+        >
+          <div style={{ position: "relative", width: 64, height: 64 }}>
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                border: "2px solid #1e2d22",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                border: "2px solid transparent",
+                borderTopColor: "#00ff57",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: 8,
+                borderRadius: "50%",
+                border: "2px solid transparent",
+                borderTopColor: "#9ca3af",
+                animation: "spin 1.5s linear infinite reverse",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%,-50%)",
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#00ff57",
+                animation: "pulse 1s ease-in-out infinite",
+              }}
+            />
           </div>
-
-          <div className="text-center">
-            <p className="text-white font-semibold tracking-widest uppercase">
-              Loading
-            </p>
-            <p className="text-gray-500 text-sm mt-1">Please wait...</p>
-          </div>
-
-          <div className="w-32 h-[2px] bg-[#1e2d22] rounded-full overflow-hidden">
-            <div className="h-full w-1/3 bg-[#00ff57] animate-pulse" />
+          <p
+            style={{
+              color: "#9ca3af",
+              fontSize: 13,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              fontFamily: "'JetBrains Mono',monospace",
+            }}
+          >
+            Loading dashboard
+          </p>
+          <div
+            style={{
+              width: 120,
+              height: 2,
+              background: "#1e2d22",
+              borderRadius: 999,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "40%",
+                background: "#00ff57",
+                borderRadius: 999,
+                animation: "slide 1.2s ease-in-out infinite",
+              }}
+            />
           </div>
         </div>
       </div>
     );
   }
 
-  if (!plans) {
-    return (
-      <div className="bg-[#0b0f0c] min-h-screen text-white flex items-center justify-center">
-        <p className="text-gray-400">No Exercise for today.</p>
-      </div>
-    );
-  }
+  const totalCalories =
+    todayPlan?.diets?.reduce(
+      (acc, meal) =>
+        acc +
+        (meal.dietId?.reduce((s, d) => s + (parseInt(d.calories) || 0), 0) ||
+          0),
+      0,
+    ) || 0;
+  const exerciseCount = todayPlan?.exercises?.length || 0;
 
   return (
-    <div className="min-h-screen bg-[#0b0f0c] text-white px-4 sm:px-6 lg:px-10 py-10">
-      <div className="max-w-7xl mx-auto">
-        {/* HEADER */}
-        <div className="mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            Welcome back, {profile?.name}!
-          </h1>
+    <div
+      style={{
+        background: "#0a0f0b",
+        color: "white",
+        fontFamily: "'Sora', sans-serif",
+        position: "relative",
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; }
 
-          <p className="text-gray-400 mt-1 text-sm sm:text-base">
-            Here’s your plan for today
+        @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pring  { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(2.2);opacity:0} }
+
+        .db-enter { opacity:0; animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+        .fl-tab {
+          padding: 11px 28px; border-radius: 8px; font-weight: 700; font-size: 13px;
+          letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+          font-family: 'Sora', sans-serif; transition: all 0.25s ease; outline: none;
+        }
+        .fl-tab-active {
+          background: #00ff57 !important; color: #000 !important;
+          border: 1px solid #00ff57 !important; box-shadow: 0 6px 20px rgba(0,255,87,0.28);
+        }
+        .fl-tab-inactive {
+          background: #131c14 !important; color: #8a9e8a !important;
+          border: 1px solid #1e2d1e !important;
+        }
+        .fl-tab-inactive:hover {
+          color: #e5e7eb !important; border-color: #2a3d2a !important;
+          background: #182118 !important;
+        }
+
+        .qstat {
+          background: #111a12; border: 1px solid #1e2d1e; border-radius: 16px;
+          padding: 22px; position: relative; overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .qstat:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+          border-color: #2a3d2a;
+        }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0a0f0b; }
+        ::-webkit-scrollbar-thumb { background: #00ff5740; border-radius: 2px; }
+
+        @media (max-width: 768px) {
+          .stats-grid      { grid-template-columns: 1fr 1fr !important; }
+          .card-header-row { flex-direction: column !important; align-items: flex-start !important; }
+          .fl-tab          { padding: 10px 18px !important; font-size: 12px !important; }
+        }
+      `}</style>
+
+      {/* Background gradient — zIndex -1 so it never covers footer */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: -1,
+          pointerEvents: "none",
+          background:
+            "radial-gradient(ellipse at 20% 10%, rgba(0,255,87,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(0,207,255,0.03) 0%, transparent 50%), #0a0f0b",
+        }}
+      />
+
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: 1000,
+          margin: "0 auto",
+          padding: "clamp(80px,10vw,110px) clamp(16px,4vw,32px) 60px",
+        }}
+      >
+        {/* ── HEADER ──────────────────────────────────────────────── */}
+        <div
+          className="db-enter"
+          style={{ marginBottom: 36, animationDelay: "0s" }}
+        >
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(0,255,87,0.07)",
+              border: "1px solid rgba(0,255,87,0.18)",
+              borderRadius: 999,
+              padding: "6px 16px",
+              marginBottom: 18,
+            }}
+          >
+            <div style={{ position: "relative", width: 8, height: 8 }}>
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "#00ff57",
+                  position: "absolute",
+                }}
+              />
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  border: "1px solid #00ff57",
+                  position: "absolute",
+                  animation: "pring 2.2s ease-out infinite",
+                }}
+              />
+            </div>
+            <span
+              style={{
+                fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 11,
+                letterSpacing: "0.16em",
+                color: "#00ff57",
+                textTransform: "uppercase",
+              }}
+            >
+              {getDayName()} · {getDateStr()}
+            </span>
+          </div>
+          <h1
+            style={{
+              fontFamily: "'Barlow Condensed',sans-serif",
+              fontWeight: 900,
+              fontSize: "clamp(34px,5vw,56px)",
+              lineHeight: 0.95,
+              letterSpacing: "0.01em",
+              textTransform: "uppercase",
+              marginBottom: 12,
+            }}
+          >
+            {getGreeting()},&nbsp;
+            <span
+              style={{
+                color: "#00ff57",
+                fontStyle: "italic",
+                textShadow: "0 0 40px rgba(0,255,87,0.25)",
+              }}
+            >
+              {profile?.name || "Athlete"}
+            </span>
+          </h1>
+          <p
+            style={{
+              color: "#8a9e8a",
+              fontSize: 15,
+              fontWeight: 400,
+              lineHeight: 1.6,
+            }}
+          >
+            Here's your training &amp; nutrition plan for today.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8">
-          {/* TODAY WORKOUT CARD */}
-          <div className="bg-[#101410] border border-gray-800 rounded-xl p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-6">
-              Today Workout
-            </h2>
+        {/* ── QUICK STATS ─────────────────────────────────────────── */}
+        <div
+          className="db-enter stats-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 14,
+            marginBottom: 32,
+            animationDelay: "0.1s",
+          }}
+        >
+          {[
+            {
+              label: "Exercises Today",
+              value: exerciseCount,
+              color: "#00ff57",
+              icon: "🏋️",
+            },
+            {
+              label: "Total Calories",
+              value: `${totalCalories}`,
+              color: "#ff9f43",
+              icon: "🔥",
+              sub: "kcal",
+            },
+            {
+              label: "Meals Planned",
+              value: todayPlan?.diets?.length || 0,
+              color: "#00cfff",
+              icon: "🥗",
+            },
+            {
+              label: "Plan Active",
+              value: todayPlan ? "Yes" : "None",
+              color: "#ff6b9d",
+              icon: "📋",
+            },
+          ].map((s, i) => (
+            <div
+              key={i}
+              className="qstat"
+              style={{ animationDelay: `${0.08 + i * 0.06}s` }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 2,
+                  background: s.color,
+                }}
+              />
+              <div style={{ fontSize: 22, marginBottom: 10 }}>{s.icon}</div>
+              <div
+                style={{
+                  fontFamily: "'Barlow Condensed',sans-serif",
+                  fontWeight: 800,
+                  fontStyle: "italic",
+                  fontSize: 30,
+                  color: s.color,
+                  lineHeight: 1,
+                }}
+              >
+                {s.value}
+                {s.sub && (
+                  <span
+                    style={{
+                      fontSize: 14,
+                      marginLeft: 4,
+                      fontStyle: "normal",
+                      opacity: 0.8,
+                    }}
+                  >
+                    {s.sub}
+                  </span>
+                )}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#6b7280",
+                  marginTop: 6,
+                  fontFamily: "'JetBrains Mono',monospace",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
 
-            {!todayPlan ? (
-              <p className="text-gray-500">Please Choose a plan</p>
-            ) : (
-              <>
-                {/* TABS */}
-                <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8">
+        {/* ── MAIN CARD ───────────────────────────────────────────── */}
+        <div
+          style={{
+            background: "#111a12",
+            border: "1px solid #1e2d1e",
+            borderRadius: 20,
+          }}
+        >
+          {/* Card header */}
+          <div
+            style={{
+              padding: "22px 28px",
+              borderBottom: "1px solid #1e2d1e",
+              background: "#0f1710",
+              borderRadius: "20px 20px 0 0",
+            }}
+          >
+            <div
+              className="card-header-row"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 16,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 22,
+                      height: 2,
+                      background: "#00ff57",
+                      borderRadius: 1,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono',monospace",
+                      fontSize: 11,
+                      color: "#00ff57",
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Today's Plan
+                  </span>
+                </div>
+                <h2
+                  style={{
+                    fontFamily: "'Barlow Condensed',sans-serif",
+                    fontWeight: 800,
+                    fontSize: "clamp(22px,3vw,30px)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.02em",
+                    margin: 0,
+                    color: "#f0f0f0",
+                  }}
+                >
+                  Training &amp; Nutrition
+                </h2>
+              </div>
+              {todayPlan && (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    flexShrink: 0,
+                    flexWrap: "wrap",
+                  }}
+                >
                   <button
+                    className={`fl-tab ${activeTab === "exercises" ? "fl-tab-active" : "fl-tab-inactive"}`}
                     onClick={() => setActiveTab("exercises")}
-                    className={`px-5 py-2 rounded-full font-semibold transition ${
-                      activeTab === "exercises"
-                        ? "bg-[#00ff57] text-black"
-                        : "bg-[#1a251a] text-gray-400 hover:text-white"
-                    }`}
                   >
                     Exercises
                   </button>
-
                   <button
+                    className={`fl-tab ${activeTab === "diet" ? "fl-tab-active" : "fl-tab-inactive"}`}
                     onClick={() => setActiveTab("diet")}
-                    className={`px-5 py-2 rounded-full font-semibold transition ${
-                      activeTab === "diet"
-                        ? "bg-[#00ff57] text-black"
-                        : "bg-[#1a251a] text-gray-400 hover:text-white"
-                    }`}
                   >
                     Diet Plan
                   </button>
                 </div>
+              )}
+            </div>
+          </div>
 
-                {/* EXERCISE TAB */}
-                {activeTab === "exercises" ? (
-                  <WorkoutDay dayData={todayPlan} />
+          {/* Card body */}
+          <div style={{ padding: "28px" }}>
+            {!todayPlan ? (
+              <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>🏃</div>
+                <h3
+                  style={{
+                    fontFamily: "'Barlow Condensed',sans-serif",
+                    fontWeight: 800,
+                    fontSize: 28,
+                    textTransform: "uppercase",
+                    marginBottom: 12,
+                    color: "#f0f0f0",
+                  }}
+                >
+                  No Plan Selected
+                </h3>
+                <p
+                  style={{
+                    color: "#8a9e8a",
+                    fontSize: 15,
+                    fontWeight: 400,
+                    maxWidth: 340,
+                    margin: "0 auto 28px",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  You haven't enrolled in a workout plan yet. Browse our plans
+                  to get started.
+                </p>
+                <a
+                  href="/plans"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "#00ff57",
+                    color: "black",
+                    padding: "13px 32px",
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    textDecoration: "none",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 10px 28px rgba(0,255,87,0.35)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "none";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  Browse Plans →
+                </a>
+              </div>
+            ) : activeTab === "exercises" ? (
+              <WorkoutDay dayData={todayPlan} />
+            ) : (
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: 22,
+                    flexWrap: "wrap",
+                    gap: 12,
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "'Barlow Condensed',sans-serif",
+                      fontWeight: 800,
+                      fontSize: "clamp(20px,3vw,26px)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.02em",
+                      margin: 0,
+                      color: "#f0f0f0",
+                    }}
+                  >
+                    Today's Nutrition
+                  </h3>
+                  {totalCalories > 0 && (
+                    <div
+                      style={{
+                        background: "rgba(255,159,67,0.08)",
+                        border: "1px solid rgba(255,159,67,0.2)",
+                        borderRadius: 999,
+                        padding: "6px 16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <span style={{ fontSize: 14 }}>🔥</span>
+                      <span
+                        style={{
+                          fontFamily: "'JetBrains Mono',monospace",
+                          fontSize: 12,
+                          color: "#ff9f43",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {totalCalories} total kcal
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {todayPlan?.diets?.length ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 14,
+                    }}
+                  >
+                    {todayPlan.diets.map((diet, i) => (
+                      <DietCard key={i} diet={diet} index={i} />
+                    ))}
+                  </div>
                 ) : (
-                  <div className="mt-2">
-                    <h3 className="text-lg sm:text-xl font-semibold mb-5">
-                      Today’s Diet Plan
-                    </h3>
-
-                    {todayPlan?.diets?.length ? (
-                      <div className="space-y-4">
-                        {todayPlan.diets.map((diet, i) => (
-                          <div
-                            key={i}
-                            className="p-4 bg-[#151b15] rounded-lg border border-gray-800"
-                          >
-                            <h4 className="text-lg font-semibold capitalize">
-                              {diet.mealType} – {diet.mealTime}
-                            </h4>
-
-                            {diet.dietId.map((d) => (
-                              <div
-                                key={d._id}
-                                className="mt-4 p-4 bg-[#1e251e] rounded-md"
-                              >
-                                <p className="font-semibold text-white">
-                                  {d.items.join(", ")}
-                                </p>
-
-                                <div className="text-sm text-gray-400 mt-2 space-y-1">
-                                  <p>Calories: {d.calories}</p>
-                                  <p>Protein: {d.protein}</p>
-                                  <p>Carbs: {d.carbs}</p>
-                                  <p>Fats: {d.fats}</p>
-                                </div>
-
-                                <p className="text-gray-400 mt-3 italic text-sm">
-                                  {d.purpose}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500">No diet schedule today</p>
-                    )}
+                  <div style={{ textAlign: "center", padding: "48px 24px" }}>
+                    <div style={{ fontSize: 40, marginBottom: 14 }}>🥗</div>
+                    <p style={{ color: "#8a9e8a", fontSize: 15 }}>
+                      No diet schedule for today
+                    </p>
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>

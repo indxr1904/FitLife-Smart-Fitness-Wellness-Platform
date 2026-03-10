@@ -6,11 +6,11 @@ import { API_BASE_URL } from "../../api/api";
 
 const ExercisePlans = () => {
   const navigate = useNavigate();
-
   const [plans, setPlans] = useState([]);
   const [activePlanId, setActivePlanId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingPlanId, setPendingPlanId] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -18,14 +18,13 @@ const ExercisePlans = () => {
         const res = await fetch(`${API_BASE_URL}/api/admin/plan`);
         const data = await res.json();
         setPlans(Array.isArray(data.data) ? data.data : []);
-      } catch (error) {
-        console.error("Error fetching plans:", error);
+      } catch (err) {
+        console.error(err);
         toast.error("Failed to load plans");
       } finally {
         setLoading(false);
       }
     };
-
     fetchPlans();
   }, []);
 
@@ -33,30 +32,19 @@ const ExercisePlans = () => {
     const fetchActivePlan = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
-
       try {
         const res = await fetch(`${API_BASE_URL}/api/users/my-plans`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
-
-        if (data.status === "success" && data.plans.length > 0) {
+        if (data.status === "success" && data.plans.length > 0)
           setActivePlanId(data.plans[0]._id);
-        }
-      } catch (error) {
-        console.error("Error fetching active plan:", error);
+      } catch (err) {
+        console.error(err);
       }
     };
-
     fetchActivePlan();
   }, []);
-
-  const handleViewDetails = (planId) => {
-    navigate(`/weeklyPlans/${planId}`);
-  };
 
   const startPlan = (planId) => {
     const token = localStorage.getItem("token");
@@ -64,12 +52,10 @@ const ExercisePlans = () => {
       toast.warning("Please login to start a plan");
       return;
     }
-
     if (activePlanId && activePlanId !== planId) {
       setPendingPlanId(planId);
       return;
     }
-
     submitPlan(planId);
   };
 
@@ -83,38 +69,84 @@ const ExercisePlans = () => {
         },
         body: JSON.stringify({ planId }),
       });
-
       const data = await res.json();
-
       if (data.status === "success") {
         setActivePlanId(planId);
         toast.success("Plan started successfully");
         navigate(`/weeklyPlans/${planId}`);
       } else if (data.status === "already_enrolled") {
-        toast.info("You are already enrolled in this plan");
+        toast.info("Already enrolled in this plan");
         navigate(`/weeklyPlans/${planId}`);
       } else {
         toast.error(data.message || "Unable to start plan");
       }
-    } catch (error) {
-      console.error("Error starting plan:", error);
+    } catch (err) {
+      console.error(err);
       toast.error("Something went wrong. Please try again.");
     }
   };
 
+  const levelColor = (level) => {
+    const l = level?.toLowerCase();
+    if (l === "beginner")
+      return {
+        color: "#00ff57",
+        bg: "rgba(0,255,87,0.08)",
+        border: "rgba(0,255,87,0.25)",
+      };
+    if (l === "intermediate")
+      return {
+        color: "#ff9f43",
+        bg: "rgba(255,159,67,0.08)",
+        border: "rgba(255,159,67,0.25)",
+      };
+    if (l === "advanced")
+      return {
+        color: "#ff6b9d",
+        bg: "rgba(255,107,157,0.08)",
+        border: "rgba(255,107,157,0.25)",
+      };
+    return {
+      color: "#00cfff",
+      bg: "rgba(0,207,255,0.08)",
+      border: "rgba(0,207,255,0.25)",
+    };
+  };
+
+  const filters = ["All", "Beginner", "Intermediate", "Advanced"];
+  const filtered =
+    activeFilter === "All"
+      ? plans
+      : plans.filter(
+          (p) => p.level?.toLowerCase() === activeFilter.toLowerCase(),
+        );
+
+  // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="bg-[#0b0f0c] min-h-screen flex items-center justify-center">
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#0a0f0b",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <style>{`
+          @keyframes spin  { to { transform: rotate(360deg); } }
+          @keyframes pulse { 0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.8)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)} }
+          @keyframes slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+        `}</style>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "24px",
+            gap: 24,
           }}
         >
-          {/* Spinning ring */}
-          <div style={{ position: "relative", width: "64px", height: "64px" }}>
+          <div style={{ position: "relative", width: 64, height: 64 }}>
             <div
               style={{
                 position: "absolute",
@@ -136,62 +168,44 @@ const ExercisePlans = () => {
             <div
               style={{
                 position: "absolute",
-                inset: "8px",
+                inset: 8,
                 borderRadius: "50%",
                 border: "2px solid transparent",
                 borderTopColor: "#9ca3af",
                 animation: "spin 1.5s linear infinite reverse",
               }}
             />
-            {/* Center dot */}
             <div
               style={{
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "8px",
-                height: "8px",
+                transform: "translate(-50%,-50%)",
+                width: 8,
+                height: 8,
                 borderRadius: "50%",
-                backgroundColor: "#00ff57",
+                background: "#00ff57",
                 animation: "pulse 1s ease-in-out infinite",
               }}
             />
           </div>
-
-          {/* Text */}
-          <div style={{ textAlign: "center" }}>
-            <p
-              style={{
-                color: "#ffffff",
-                fontSize: "16px",
-                fontWeight: "600",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                margin: 0,
-              }}
-            >
-              Loading
-            </p>
-            <p
-              style={{
-                color: "#4b5563",
-                fontSize: "12px",
-                letterSpacing: "0.1em",
-                marginTop: "6px",
-              }}
-            >
-              Please wait...
-            </p>
-          </div>
-
-          {/* Bar */}
+          <p
+            style={{
+              color: "#9ca3af",
+              fontSize: 13,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              fontFamily: "'JetBrains Mono',monospace",
+            }}
+          >
+            Loading Plans
+          </p>
           <div
             style={{
-              width: "120px",
-              height: "2px",
-              backgroundColor: "#1e2d22",
-              borderRadius: "999px",
+              width: 120,
+              height: 2,
+              background: "#1e2d22",
+              borderRadius: 999,
               overflow: "hidden",
             }}
           >
@@ -199,210 +213,637 @@ const ExercisePlans = () => {
               style={{
                 height: "100%",
                 width: "40%",
-                backgroundColor: "#00ff57",
-                borderRadius: "999px",
+                background: "#00ff57",
+                borderRadius: 999,
                 animation: "slide 1.2s ease-in-out infinite",
               }}
             />
           </div>
         </div>
-
-        <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } }
-        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
-      `}</style>
-      </div>
-    );
-  }
-
-  if (!plans.length) {
-    return (
-      <div className="bg-[#030804] min-h-screen text-white flex items-center justify-center">
-        <p className="text-gray-400">No plans found.</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="relative bg-[#030804] min-h-screen text-white py-12 px-4 sm:px-8 overflow-hidden">
-        {/* background glow */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; }
+
+        @keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pring    { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(2.2);opacity:0} }
+        @keyframes scaleIn  { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+        .ep-enter { opacity:0; animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+        /* Filter pills */
+        .fp { padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600;
+          font-family: 'Sora',sans-serif; cursor: pointer; outline: none;
+          transition: all 0.25s ease; letter-spacing: 0.04em; }
+        .fp-active   { background: #00ff57; color: #000; border: 1px solid #00ff57; box-shadow: 0 4px 16px rgba(0,255,87,0.3); }
+        .fp-inactive { background: #111a12; color: #8a9e8a; border: 1px solid #1e2d1e; }
+        .fp-inactive:hover { background: #182118; border-color: #2a3d2a; color: #e5e7eb; }
+
+        /* Plan row */
+        .plan-row { transition: opacity 0.3s ease; }
+
+        /* Image wrapper */
+        .plan-img-wrap { overflow: hidden; border-radius: 14px; border: 1px solid #1e2d1e;
+          transition: border-color 0.4s ease, box-shadow 0.4s ease; }
+        .plan-img-wrap:hover { border-color: #00ff5760; box-shadow: 0 12px 40px rgba(0,255,87,0.12); }
+        .plan-img-wrap img { transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); width:100%; height:100%; object-fit:cover; display:block; }
+        .plan-img-wrap:hover img { transform: scale(1.07); }
+
+        /* Btn view */
+        .btn-view {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: #111a12; border: 1px solid #1e2d1e; color: #e5e7eb;
+          padding: 11px 22px; border-radius: 8px; font-size: 14px; font-weight: 600;
+          font-family: 'Sora',sans-serif; cursor: pointer; outline: none;
+          transition: all 0.25s ease;
+        }
+        .btn-view:hover { border-color: #00ff57; background: #141f14; transform: translateY(-2px); }
+
+        /* Btn start */
+        .btn-start {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: #00ff57; color: #000;
+          padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 700;
+          font-family: 'Sora',sans-serif; cursor: pointer; border: 1px solid #00ff57; outline: none;
+          transition: all 0.25s ease; letter-spacing: 0.04em;
+        }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,255,87,0.35); }
+        .btn-start:disabled { background: #1e2d1e; color: #4b5563; border-color: #1e2d1e; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Divider line between plans */
+        .plan-divider { height: 1px; background: linear-gradient(to right, transparent, #1e2d1e 20%, #1e2d1e 80%, transparent); margin: 56px 0; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+          display: flex; align-items: center; justify-content: center; z-index: 50; }
+        .modal-box { background: #111a12; border: 1px solid #1e2d1e; border-radius: 16px;
+          padding: 32px; width: 90%; max-width: 400px; color: white;
+          animation: scaleIn 0.3s cubic-bezier(0.16,1,0.3,1); }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0a0f0b; }
+        ::-webkit-scrollbar-thumb { background: #00ff5740; border-radius: 2px; }
+
+        @media (max-width: 768px) {
+          .plan-layout  { flex-direction: column !important; }
+          .plan-img-col { width: 100% !important; }
+          .plan-txt-col { width: 100% !important; }
+        }
+      `}</style>
+
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#0a0f0b",
+          color: "white",
+          fontFamily: "'Sora',sans-serif",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background glows */}
         <div
-          className="pointer-events-none absolute top-[-200px] right-[-200px] w-[500px] h-[500px] rounded-full 
-        bg-[radial-gradient(circle,rgba(0,255,87,0.08)_0%,transparent_70%)] blur-2xl"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            background:
+              "radial-gradient(ellipse at 15% 10%, rgba(0,255,87,0.05) 0%, transparent 50%), radial-gradient(ellipse at 85% 85%, rgba(0,207,255,0.03) 0%, transparent 50%)",
+          }}
         />
 
-        <div className="max-w-6xl mx-auto">
-          {/* HEADER */}
-          <div className="mb-12 animate-fadeInUp">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight">
-              Your Plans
-            </h1>
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            maxWidth: 1100,
+            margin: "0 auto",
+            padding: "clamp(28px,4vw,56px) clamp(16px,4vw,40px)",
+          }}
+        >
+          {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
+          <div
+            className="ep-enter"
+            style={{ marginBottom: 40, animationDelay: "0s" }}
+          >
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "rgba(0,255,87,0.07)",
+                border: "1px solid rgba(0,255,87,0.18)",
+                borderRadius: 999,
+                padding: "6px 16px",
+                marginBottom: 18,
+              }}
+            >
+              <div style={{ position: "relative", width: 8, height: 8 }}>
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: "#00ff57",
+                    position: "absolute",
+                  }}
+                />
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    border: "1px solid #00ff57",
+                    position: "absolute",
+                    animation: "pring 2.2s ease-out infinite",
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono',monospace",
+                  fontSize: 11,
+                  letterSpacing: "0.18em",
+                  color: "#00ff57",
+                  textTransform: "uppercase",
+                }}
+              >
+                Fitness Programs
+              </span>
+            </div>
 
-            <p className="text-gray-400 max-w-xl">
-              Choose a plan that fits your fitness level and goals.
+            <h1
+              style={{
+                fontFamily: "'Barlow Condensed',sans-serif",
+                fontWeight: 900,
+                fontSize: "clamp(36px,6vw,64px)",
+                lineHeight: 0.92,
+                letterSpacing: "0.01em",
+                textTransform: "uppercase",
+                marginBottom: 14,
+              }}
+            >
+              CHOOSE YOUR <br />
+              <span
+                style={{
+                  color: "#00ff57",
+                  fontStyle: "italic",
+                  textShadow: "0 0 50px rgba(0,255,87,0.25)",
+                }}
+              >
+                WORKOUT PLAN
+              </span>
+            </h1>
+            <p
+              style={{
+                color: "#8a9e8a",
+                fontSize: 15,
+                fontWeight: 400,
+                maxWidth: 480,
+                lineHeight: 1.7,
+              }}
+            >
+              Select a plan that matches your fitness level and goals. Each
+              program is structured week-by-week for maximum results.
             </p>
           </div>
 
-          {/* FILTER */}
-          <div className="flex flex-wrap gap-3 mb-12 animate-fadeInUp">
-            {["Beginner", "Intermediate", "Advanced"].map((level) => (
+          {/* ── FILTER PILLS ────────────────────────────────────────────── */}
+          <div
+            className="ep-enter"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 10,
+              marginBottom: 48,
+              animationDelay: "0.1s",
+            }}
+          >
+            {filters.map((f) => (
               <button
-                key={level}
-                className="bg-[#080f09] border border-[#182219]
-                hover:border-[#00ff57] hover:bg-[#0c140d]
-                py-2 px-4 rounded-md transition-all duration-300"
+                key={f}
+                className={`fp ${activeFilter === f ? "fp-active" : "fp-inactive"}`}
+                onClick={() => setActiveFilter(f)}
               >
-                {level}
+                {f}
+                {f !== "All" && (
+                  <span style={{ marginLeft: 8, fontSize: 11, opacity: 0.7 }}>
+                    (
+                    {
+                      plans.filter(
+                        (p) => p.level?.toLowerCase() === f.toLowerCase(),
+                      ).length
+                    }
+                    )
+                  </span>
+                )}
               </button>
             ))}
+            <div
+              style={{
+                marginLeft: "auto",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono',monospace",
+                  fontSize: 11,
+                  color: "#4b5563",
+                }}
+              >
+                {filtered.length} plan{filtered.length !== 1 ? "s" : ""} found
+              </span>
+            </div>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-bold mb-10 tracking-tight">
-            Weekly Plans
-          </h2>
-
-          {plans.map((plan, index) => (
-            <div
-              key={plan._id}
-              className="mb-16 last:mb-0 animate-fadeInUp"
-              style={{ animationDelay: `${index * 120}ms` }}
-            >
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 lg:gap-16">
-                {/* LEFT */}
-                <div className="w-full lg:w-1/2">
-                  <p className="text-gray-500 text-xs sm:text-sm mb-2 tracking-wider uppercase">
-                    Week Plan
-                  </p>
-
-                  <h3 className="text-xl sm:text-2xl font-semibold mb-3">
-                    {plan.name}
-                  </h3>
-
-                  <p className="text-gray-400 text-sm sm:text-base mb-6 leading-relaxed">
-                    {plan.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-4">
-                    <button
-                      onClick={() => handleViewDetails(plan._id)}
-                      className="bg-[#080f09] border border-[#182219]
-                      hover:border-[#00ff57] hover:bg-[#0c140d]
-                      text-white text-sm py-2.5 px-5 rounded-md
-                      flex items-center gap-2
-                      transition-all duration-300 hover:-translate-y-[2px]"
-                    >
-                      View Details <GoArrowRight />
-                    </button>
-
-                    <button
-                      onClick={() => startPlan(plan._id)}
-                      disabled={activePlanId === plan._id}
-                      className={`text-sm py-2.5 px-5 rounded-md transition-all duration-300 ${
-                        activePlanId === plan._id
-                          ? "bg-gray-600 cursor-not-allowed"
-                          : "bg-[#00ff57] text-black hover:shadow-[0_8px_25px_rgba(0,255,87,0.35)] hover:-translate-y-[2px]"
-                      }`}
-                    >
-                      {activePlanId === plan._id ? "Enrolled" : "Start Plan"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* RIGHT IMAGE */}
-                <div className="w-full lg:w-[38%] group">
-                  <div
-                    className="aspect-[16/9] overflow-hidden rounded-lg border border-[#182219]
-                  transition-all duration-500 group-hover:border-[#00ff57]
-                  group-hover:shadow-[0_10px_40px_rgba(0,255,87,0.15)]"
-                  >
-                    <img
-                      src={plan.image}
-                      alt={plan.name}
-                      className="w-full h-full object-cover
-                      transition-transform duration-700 ease-out
-                      group-hover:scale-110"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = "/default-plan.jpg";
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
+          {/* ── EMPTY STATE ─────────────────────────────────────────────── */}
+          {!filtered.length && (
+            <div style={{ textAlign: "center", padding: "80px 24px" }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🏋️</div>
+              <h3
+                style={{
+                  fontFamily: "'Barlow Condensed',sans-serif",
+                  fontWeight: 800,
+                  fontSize: 28,
+                  textTransform: "uppercase",
+                  marginBottom: 10,
+                }}
+              >
+                No {activeFilter} Plans Found
+              </h3>
+              <p style={{ color: "#8a9e8a", fontSize: 15 }}>
+                Try selecting a different level filter.
+              </p>
             </div>
-          ))}
+          )}
+
+          {/* ── PLAN LIST ───────────────────────────────────────────────── */}
+          {filtered.map((plan, index) => {
+            const lc = levelColor(plan.level);
+            const isActive = activePlanId === plan._id;
+            return (
+              <div key={plan._id}>
+                <div
+                  className="ep-enter plan-row"
+                  style={{ animationDelay: `${0.15 + index * 0.1}s` }}
+                >
+                  <div
+                    className="plan-layout"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "clamp(24px,4vw,64px)",
+                    }}
+                  >
+                    {/* ── TEXT SIDE ── */}
+                    <div className="plan-txt-col" style={{ flex: 1 }}>
+                      {/* Meta row */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          marginBottom: 14,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: "'JetBrains Mono',monospace",
+                            fontSize: 11,
+                            color: "#4b5563",
+                            letterSpacing: "0.15em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          #{String(index + 1).padStart(2, "0")} · Weekly Plan
+                        </span>
+                        {plan.level && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: lc.color,
+                              background: lc.bg,
+                              border: `1px solid ${lc.border}`,
+                              borderRadius: 999,
+                              padding: "3px 12px",
+                              fontFamily: "'JetBrains Mono',monospace",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.08em",
+                            }}
+                          >
+                            {plan.level}
+                          </span>
+                        )}
+                        {isActive && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: "#00ff57",
+                              background: "rgba(0,255,87,0.08)",
+                              border: "1px solid rgba(0,255,87,0.25)",
+                              borderRadius: 999,
+                              padding: "3px 12px",
+                              fontFamily: "'JetBrains Mono',monospace",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.08em",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 5,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                background: "#00ff57",
+                                display: "inline-block",
+                              }}
+                            />
+                            Active
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Plan name */}
+                      <h3
+                        style={{
+                          fontFamily: "'Barlow Condensed',sans-serif",
+                          fontWeight: 800,
+                          fontStyle: "italic",
+                          fontSize: "clamp(26px,3.5vw,40px)",
+                          lineHeight: 0.95,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.01em",
+                          marginBottom: 14,
+                          color: "#f0f0f0",
+                        }}
+                      >
+                        {plan.name}
+                      </h3>
+
+                      {/* Description */}
+                      <p
+                        style={{
+                          color: "#8a9e8a",
+                          fontSize: 15,
+                          lineHeight: 1.75,
+                          marginBottom: 20,
+                          fontWeight: 400,
+                          maxWidth: 480,
+                        }}
+                      >
+                        {plan.description}
+                      </p>
+
+                      {/* Days pills */}
+                      {plan.days?.length > 0 && (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 6,
+                            marginBottom: 24,
+                          }}
+                        >
+                          {plan.days.slice(0, 7).map((day, di) => (
+                            <span
+                              key={di}
+                              style={{
+                                fontSize: 11,
+                                color: "#6b7280",
+                                background: "#111a12",
+                                border: "1px solid #1e2d1e",
+                                borderRadius: 6,
+                                padding: "4px 10px",
+                                fontFamily: "'JetBrains Mono',monospace",
+                              }}
+                            >
+                              {typeof day === "string" ? day : `Day ${di + 1}`}
+                            </span>
+                          ))}
+                          {plan.days.length > 7 && (
+                            <span
+                              style={{
+                                fontSize: 11,
+                                color: "#4b5563",
+                                background: "#111a12",
+                                border: "1px solid #1e2d1e",
+                                borderRadius: 6,
+                                padding: "4px 10px",
+                                fontFamily: "'JetBrains Mono',monospace",
+                              }}
+                            >
+                              +{plan.days.length - 7} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div
+                        style={{ display: "flex", flexWrap: "wrap", gap: 12 }}
+                      >
+                        <button
+                          className="btn-view"
+                          onClick={() => navigate(`/weeklyPlans/${plan._id}`)}
+                        >
+                          View Details <GoArrowRight size={16} />
+                        </button>
+                        <button
+                          className="btn-start"
+                          onClick={() => startPlan(plan._id)}
+                          disabled={isActive}
+                        >
+                          {isActive ? "✓ Enrolled" : "Start Plan"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* ── IMAGE SIDE ── */}
+                    <div
+                      className="plan-img-col"
+                      style={{ width: "38%", flexShrink: 0 }}
+                    >
+                      <div
+                        className="plan-img-wrap"
+                        style={{ aspectRatio: "16/10", position: "relative" }}
+                      >
+                        <img
+                          src={plan.image}
+                          alt={plan.name}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/default-plan.jpg";
+                          }}
+                        />
+                        {/* Image overlay gradient */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            background:
+                              "linear-gradient(to top, rgba(10,15,11,0.5) 0%, transparent 50%)",
+                            pointerEvents: "none",
+                          }}
+                        />
+                        {/* Level badge on image */}
+                        {plan.level && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 14,
+                              left: 14,
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: lc.color,
+                              background: "rgba(10,15,11,0.85)",
+                              border: `1px solid ${lc.border}`,
+                              borderRadius: 6,
+                              padding: "4px 12px",
+                              fontFamily: "'JetBrains Mono',monospace",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.08em",
+                              backdropFilter: "blur(8px)",
+                            }}
+                          >
+                            {plan.level}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider between plans */}
+                {index < filtered.length - 1 && (
+                  <div className="plan-divider" />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* ── SWITCH PLAN MODAL ───────────────────────────────────────────── */}
       {pendingPlanId && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-[#080f09] border border-[#182219] p-7 rounded-lg w-[90%] max-w-sm text-white animate-scaleIn">
-            <h3 className="text-lg font-semibold mb-2">Switch Plan?</h3>
-
-            <p className="text-gray-400 mb-6">
-              Starting a new plan will remove your current one.
+        <div className="modal-overlay" onClick={() => setPendingPlanId(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: "rgba(255,159,67,0.1)",
+                  border: "1px solid rgba(255,159,67,0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                }}
+              >
+                ⚠️
+              </div>
+              <h3
+                style={{
+                  fontFamily: "'Barlow Condensed',sans-serif",
+                  fontWeight: 800,
+                  fontSize: 22,
+                  textTransform: "uppercase",
+                  margin: 0,
+                }}
+              >
+                Switch Plan?
+              </h3>
+            </div>
+            <p
+              style={{
+                color: "#8a9e8a",
+                fontSize: 15,
+                lineHeight: 1.7,
+                marginBottom: 28,
+              }}
+            >
+              Starting a new plan will replace your current active plan. Your
+              previous progress will be saved.
             </p>
-
-            <div className="flex justify-end gap-3">
+            <div
+              style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}
+            >
               <button
                 onClick={() => setPendingPlanId(null)}
-                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition"
+                style={{
+                  padding: "10px 22px",
+                  borderRadius: 8,
+                  background: "#1a241a",
+                  border: "1px solid #1e2d1e",
+                  color: "#8a9e8a",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: "'Sora',sans-serif",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#2a3d2a";
+                  e.currentTarget.style.color = "#e5e7eb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#1e2d1e";
+                  e.currentTarget.style.color = "#8a9e8a";
+                }}
               >
                 Cancel
               </button>
-
               <button
                 onClick={() => {
                   submitPlan(pendingPlanId);
                   setPendingPlanId(null);
                 }}
-                className="px-4 py-2 rounded bg-[#00ff57] text-black hover:shadow-[0_8px_25px_rgba(0,255,87,0.35)] transition"
+                style={{
+                  padding: "10px 24px",
+                  borderRadius: 8,
+                  background: "#00ff57",
+                  border: "1px solid #00ff57",
+                  color: "#000",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  fontFamily: "'Sora',sans-serif",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.boxShadow =
+                    "0 8px 24px rgba(0,255,87,0.35)")
+                }
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
               >
-                Confirm
+                Confirm Switch
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Animations */}
-      <style>{`
-
-        .animate-fadeInUp{
-          animation: fadeInUp 0.8s ease forwards;
-          opacity:0;
-        }
-
-        @keyframes fadeInUp{
-          from{
-            opacity:0;
-            transform: translateY(40px);
-          }
-          to{
-            opacity:1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-scaleIn{
-          animation: scaleIn 0.3s ease;
-        }
-
-        @keyframes scaleIn{
-          from{
-            transform: scale(0.9);
-            opacity:0;
-          }
-          to{
-            transform: scale(1);
-            opacity:1;
-          }
-        }
-
-      `}</style>
     </>
   );
 };

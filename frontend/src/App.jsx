@@ -7,6 +7,7 @@ import ExercisePlans from "./pages/ExercisePlans";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import { useAuth } from "./hooks/useAuth";
+import ScrollToTop from "./components/common/ScrollToTop";
 
 import UserLayout from "./components/common/Layouts/UserLayout";
 import AdminLayout from "./components/common/Layouts/AdminLayout";
@@ -56,9 +57,18 @@ export default function App() {
         draggable
         theme="dark"
       />
+      <ScrollToTop />
+
       <Routes>
         <Route element={<UserLayout />}>
           <Route index element={<Home />} />
+
+          {/* Public pages */}
+          <Route path="features" element={<Features />} />
+          <Route path="support" element={<Support />} />
+          <Route path="contact" element={<Contact />} />
+
+          {/* Auth pages */}
           <Route
             path="login"
             element={
@@ -72,30 +82,6 @@ export default function App() {
             element={
               <PublicRoute>
                 <Register />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="features"
-            element={
-              <PublicRoute>
-                <Features />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="support"
-            element={
-              <PublicRoute>
-                <Support />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="contact"
-            element={
-              <PublicRoute>
-                <Contact />
               </PublicRoute>
             }
           />
