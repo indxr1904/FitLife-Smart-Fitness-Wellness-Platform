@@ -10,6 +10,7 @@ const ExercisePlans = () => {
   const [activePlanId, setActivePlanId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingPlanId, setPendingPlanId] = useState(null);
+  const [pendingUnenrollPlanId, setPendingUnenrollPlanId] = useState(null); // renamed
   const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
@@ -86,6 +87,29 @@ const ExercisePlans = () => {
     }
   };
 
+  const unenrollPlan = async (planId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/users/unenroll-plan`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ planId }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        setActivePlanId(null);
+        toast.success("Plan unenrolled successfully");
+      } else {
+        toast.error(data.message || "Unable to unenroll from plan");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+
   const levelColor = (level) => {
     const l = level?.toLowerCase();
     if (l === "beginner")
@@ -121,7 +145,6 @@ const ExercisePlans = () => {
           (p) => p.level?.toLowerCase() === activeFilter.toLowerCase(),
         );
 
-  // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div
@@ -229,70 +252,36 @@ const ExercisePlans = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-
-        @keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes pring    { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(2.2);opacity:0} }
-        @keyframes scaleIn  { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
-
+        @keyframes fadeUp  { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes pring   { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(2.2);opacity:0} }
+        @keyframes scaleIn { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
         .ep-enter { opacity:0; animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
-
-        /* Filter pills */
-        .fp { padding: 9px 22px; border-radius: 999px; font-size: 13px; font-weight: 600;
-          font-family: 'Sora',sans-serif; cursor: pointer; outline: none;
-          transition: all 0.25s ease; letter-spacing: 0.04em; }
-        .fp-active   { background: #00ff57; color: #000; border: 1px solid #00ff57; box-shadow: 0 4px 16px rgba(0,255,87,0.3); }
-        .fp-inactive { background: #111a12; color: #8a9e8a; border: 1px solid #1e2d1e; }
-        .fp-inactive:hover { background: #182118; border-color: #2a3d2a; color: #e5e7eb; }
-
-        /* Plan row */
+        .fp { padding:9px 22px; border-radius:999px; font-size:13px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; outline:none; transition:all 0.25s ease; letter-spacing:0.04em; }
+        .fp-active   { background:#00ff57; color:#000; border:1px solid #00ff57; box-shadow:0 4px 16px rgba(0,255,87,0.3); }
+        .fp-inactive { background:#111a12; color:#8a9e8a; border:1px solid #1e2d1e; }
+        .fp-inactive:hover { background:#182118; border-color:#2a3d2a; color:#e5e7eb; }
         .plan-row { transition: opacity 0.3s ease; }
-
-        /* Image wrapper */
-        .plan-img-wrap { overflow: hidden; border-radius: 14px; border: 1px solid #1e2d1e;
-          transition: border-color 0.4s ease, box-shadow 0.4s ease; }
-        .plan-img-wrap:hover { border-color: #00ff5760; box-shadow: 0 12px 40px rgba(0,255,87,0.12); }
-        .plan-img-wrap img { transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); width:100%; height:100%; object-fit:cover; display:block; }
-        .plan-img-wrap:hover img { transform: scale(1.07); }
-
-        /* Btn view */
-        .btn-view {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: #111a12; border: 1px solid #1e2d1e; color: #e5e7eb;
-          padding: 11px 22px; border-radius: 8px; font-size: 14px; font-weight: 600;
-          font-family: 'Sora',sans-serif; cursor: pointer; outline: none;
-          transition: all 0.25s ease;
-        }
-        .btn-view:hover { border-color: #00ff57; background: #141f14; transform: translateY(-2px); }
-
-        /* Btn start */
-        .btn-start {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: #00ff57; color: #000;
-          padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 700;
-          font-family: 'Sora',sans-serif; cursor: pointer; border: 1px solid #00ff57; outline: none;
-          transition: all 0.25s ease; letter-spacing: 0.04em;
-        }
-        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,255,87,0.35); }
-        .btn-start:disabled { background: #1e2d1e; color: #4b5563; border-color: #1e2d1e; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        /* Divider line between plans */
-        .plan-divider { height: 1px; background: linear-gradient(to right, transparent, #1e2d1e 20%, #1e2d1e 80%, transparent); margin: 56px 0; }
-
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-          display: flex; align-items: center; justify-content: center; z-index: 50; }
-        .modal-box { background: #111a12; border: 1px solid #1e2d1e; border-radius: 16px;
-          padding: 32px; width: 90%; max-width: 400px; color: white;
-          animation: scaleIn 0.3s cubic-bezier(0.16,1,0.3,1); }
-
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: #0a0f0b; }
-        ::-webkit-scrollbar-thumb { background: #00ff5740; border-radius: 2px; }
-
-        @media (max-width: 768px) {
-          .plan-layout  { flex-direction: column !important; }
-          .plan-img-col { width: 100% !important; }
-          .plan-txt-col { width: 100% !important; }
+        .plan-img-wrap { overflow:hidden; border-radius:14px; border:1px solid #1e2d1e; transition:border-color 0.4s ease,box-shadow 0.4s ease; }
+        .plan-img-wrap:hover { border-color:#00ff5760; box-shadow:0 12px 40px rgba(0,255,87,0.12); }
+        .plan-img-wrap img { transition:transform 0.7s cubic-bezier(0.16,1,0.3,1); width:100%; height:100%; object-fit:cover; display:block; }
+        .plan-img-wrap:hover img { transform:scale(1.07); }
+        .btn-view { display:inline-flex; align-items:center; gap:8px; background:#111a12; border:1px solid #1e2d1e; color:#e5e7eb; padding:11px 22px; border-radius:8px; font-size:14px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; outline:none; transition:all 0.25s ease; }
+        .btn-view:hover { border-color:#00ff57; background:#141f14; transform:translateY(-2px); }
+        .btn-start { display:inline-flex; align-items:center; gap:8px; background:#00ff57; color:#000; padding:11px 24px; border-radius:8px; font-size:14px; font-weight:700; font-family:'Sora',sans-serif; cursor:pointer; border:1px solid #00ff57; outline:none; transition:all 0.25s ease; letter-spacing:0.04em; }
+        .btn-start:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(0,255,87,0.35); }
+        .btn-start:disabled { background:#1e2d1e; color:#4b5563; border-color:#1e2d1e; cursor:not-allowed; transform:none; box-shadow:none; }
+        .btn-unenroll { display:inline-flex; align-items:center; gap:8px; background:rgba(255,159,67,0.08); color:#ff9f43; padding:11px 22px; border-radius:8px; font-size:14px; font-weight:600; font-family:'Sora',sans-serif; cursor:pointer; border:1px solid rgba(255,159,67,0.25); outline:none; transition:all 0.25s ease; letter-spacing:0.04em; }
+        .btn-unenroll:hover { background:rgba(255,159,67,0.15); border-color:rgba(255,159,67,0.5); transform:translateY(-2px); box-shadow:0 8px 24px rgba(255,159,67,0.2); }
+        .plan-divider { height:1px; background:linear-gradient(to right,transparent,#1e2d1e 20%,#1e2d1e 80%,transparent); margin:56px 0; }
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:50; }
+        .modal-box { background:#111a12; border:1px solid #1e2d1e; border-radius:16px; padding:32px; width:90%; max-width:400px; color:white; animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1); }
+        ::-webkit-scrollbar { width:3px; }
+        ::-webkit-scrollbar-track { background:#0a0f0b; }
+        ::-webkit-scrollbar-thumb { background:#00ff5740; border-radius:2px; }
+        @media (max-width:768px) {
+          .plan-layout  { flex-direction:column !important; }
+          .plan-img-col { width:100% !important; }
+          .plan-txt-col { width:100% !important; }
         }
       `}</style>
 
@@ -306,7 +295,6 @@ const ExercisePlans = () => {
           overflow: "hidden",
         }}
       >
-        {/* Background glows */}
         <div
           style={{
             position: "fixed",
@@ -327,7 +315,7 @@ const ExercisePlans = () => {
             padding: "clamp(28px,4vw,56px) clamp(16px,4vw,40px)",
           }}
         >
-          {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
+          {/* PAGE HEADER */}
           <div
             className="ep-enter"
             style={{ marginBottom: 40, animationDelay: "0s" }}
@@ -377,7 +365,6 @@ const ExercisePlans = () => {
                 Fitness Programs
               </span>
             </div>
-
             <h1
               style={{
                 fontFamily: "'Barlow Condensed',sans-serif",
@@ -414,7 +401,7 @@ const ExercisePlans = () => {
             </p>
           </div>
 
-          {/* ── FILTER PILLS ────────────────────────────────────────────── */}
+          {/* FILTER PILLS */}
           <div
             className="ep-enter"
             style={{
@@ -465,7 +452,7 @@ const ExercisePlans = () => {
             </div>
           </div>
 
-          {/* ── EMPTY STATE ─────────────────────────────────────────────── */}
+          {/* EMPTY STATE */}
           {!filtered.length && (
             <div style={{ textAlign: "center", padding: "80px 24px" }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🏋️</div>
@@ -486,7 +473,7 @@ const ExercisePlans = () => {
             </div>
           )}
 
-          {/* ── PLAN LIST ───────────────────────────────────────────────── */}
+          {/* PLAN LIST */}
           {filtered.map((plan, index) => {
             const lc = levelColor(plan.level);
             const isActive = activePlanId === plan._id;
@@ -504,7 +491,7 @@ const ExercisePlans = () => {
                       gap: "clamp(24px,4vw,64px)",
                     }}
                   >
-                    {/* ── TEXT SIDE ── */}
+                    {/* TEXT SIDE */}
                     <div className="plan-txt-col" style={{ flex: 1 }}>
                       {/* Meta row */}
                       <div
@@ -669,10 +656,31 @@ const ExercisePlans = () => {
                         >
                           {isActive ? "✓ Enrolled" : "Start Plan"}
                         </button>
+                        {/* UNENROLL — only visible on the enrolled plan */}
+                        {isActive && (
+                          <button
+                            className="btn-unenroll"
+                            onClick={() => setPendingUnenrollPlanId(plan._id)}
+                          >
+                            <svg
+                              width="15"
+                              height="15"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                            Deselect Plan
+                          </button>
+                        )}
                       </div>
                     </div>
 
-                    {/* ── IMAGE SIDE ── */}
+                    {/* IMAGE SIDE */}
                     <div
                       className="plan-img-col"
                       style={{ width: "38%", flexShrink: 0 }}
@@ -689,7 +697,6 @@ const ExercisePlans = () => {
                             e.currentTarget.src = "/default-plan.jpg";
                           }}
                         />
-                        {/* Image overlay gradient */}
                         <div
                           style={{
                             position: "absolute",
@@ -699,7 +706,6 @@ const ExercisePlans = () => {
                             pointerEvents: "none",
                           }}
                         />
-                        {/* Level badge on image */}
                         {plan.level && (
                           <div
                             style={{
@@ -726,8 +732,6 @@ const ExercisePlans = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Divider between plans */}
                 {index < filtered.length - 1 && (
                   <div className="plan-divider" />
                 )}
@@ -737,7 +741,7 @@ const ExercisePlans = () => {
         </div>
       </div>
 
-      {/* ── SWITCH PLAN MODAL ───────────────────────────────────────────── */}
+      {/* SWITCH PLAN MODAL */}
       {pendingPlanId && (
         <div className="modal-overlay" onClick={() => setPendingPlanId(null)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -802,7 +806,6 @@ const ExercisePlans = () => {
                   fontWeight: 600,
                   fontFamily: "'Sora',sans-serif",
                   cursor: "pointer",
-                  transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "#2a3d2a";
@@ -830,7 +833,6 @@ const ExercisePlans = () => {
                   fontWeight: 700,
                   fontFamily: "'Sora',sans-serif",
                   cursor: "pointer",
-                  transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.boxShadow =
@@ -839,6 +841,120 @@ const ExercisePlans = () => {
                 onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
               >
                 Confirm Switch
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* UNENROLL PLAN MODAL */}
+      {pendingUnenrollPlanId && (
+        <div
+          className="modal-overlay"
+          onClick={() => setPendingUnenrollPlanId(null)}
+        >
+          <div
+            className="modal-box"
+            style={{ border: "1px solid rgba(255,159,67,0.2)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: "rgba(255,159,67,0.1)",
+                  border: "1px solid rgba(255,159,67,0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                }}
+              >
+                📋
+              </div>
+              <h3
+                style={{
+                  fontFamily: "'Barlow Condensed',sans-serif",
+                  fontWeight: 800,
+                  fontSize: 22,
+                  textTransform: "uppercase",
+                  margin: 0,
+                  color: "#ff9f43",
+                }}
+              >
+                Deselect Plan?
+              </h3>
+            </div>
+            <p
+              style={{
+                color: "#8a9e8a",
+                fontSize: 15,
+                lineHeight: 1.7,
+                marginBottom: 28,
+              }}
+            >
+              You will be unenrolled from this plan. Your progress will be saved
+              and you can re-enroll anytime.
+            </p>
+            <div
+              style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}
+            >
+              <button
+                onClick={() => setPendingUnenrollPlanId(null)}
+                style={{
+                  padding: "10px 22px",
+                  borderRadius: 8,
+                  background: "#1a241a",
+                  border: "1px solid #1e2d1e",
+                  color: "#8a9e8a",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: "'Sora',sans-serif",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#2a3d2a";
+                  e.currentTarget.style.color = "#e5e7eb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#1e2d1e";
+                  e.currentTarget.style.color = "#8a9e8a";
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  unenrollPlan(pendingUnenrollPlanId);
+                  setPendingUnenrollPlanId(null);
+                }}
+                style={{
+                  padding: "10px 24px",
+                  borderRadius: 8,
+                  background: "#ff9f43",
+                  border: "1px solid #ff9f43",
+                  color: "#000",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  fontFamily: "'Sora',sans-serif",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.boxShadow =
+                    "0 8px 24px rgba(255,159,67,0.35)")
+                }
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+              >
+                Confirm Deselect
               </button>
             </div>
           </div>

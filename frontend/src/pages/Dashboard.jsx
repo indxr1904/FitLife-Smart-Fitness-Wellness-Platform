@@ -206,6 +206,8 @@ const DietCard = ({ diet, index }) => {
 
 const Dashboard = () => {
   const [todayPlan, setTodayPlan] = useState(null);
+  const [isRestDay, setIsRestDay] = useState(false); // NEW
+  const [hasPlan, setHasPlan] = useState(false); // NEW
   const [profile, setProfile] = useState({});
   const [activeTab, setActiveTab] = useState("exercises");
   const [loading, setLoading] = useState(true);
@@ -233,7 +235,24 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setTodayPlan(data.schedule);
+
+        // User has an enrolled plan
+        if (data.planId) {
+          setHasPlan(true);
+          if (data.schedule) {
+            setTodayPlan(data.schedule);
+            setIsRestDay(false);
+          } else {
+            // Plan exists but no schedule for today = rest day
+            setTodayPlan(null);
+            setIsRestDay(true);
+          }
+        } else {
+          // No plan enrolled at all
+          setHasPlan(false);
+          setIsRestDay(false);
+          setTodayPlan(null);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -367,45 +386,19 @@ const Dashboard = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-
         @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pring  { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(2.2);opacity:0} }
-
+        @keyframes restFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
         .db-enter { opacity:0; animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
-
-        .fl-tab {
-          padding: 11px 28px; border-radius: 8px; font-weight: 700; font-size: 13px;
-          letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
-          font-family: 'Sora', sans-serif; transition: all 0.25s ease; outline: none;
-        }
-        .fl-tab-active {
-          background: #00ff57 !important; color: #000 !important;
-          border: 1px solid #00ff57 !important; box-shadow: 0 6px 20px rgba(0,255,87,0.28);
-        }
-        .fl-tab-inactive {
-          background: #131c14 !important; color: #8a9e8a !important;
-          border: 1px solid #1e2d1e !important;
-        }
-        .fl-tab-inactive:hover {
-          color: #e5e7eb !important; border-color: #2a3d2a !important;
-          background: #182118 !important;
-        }
-
-        .qstat {
-          background: #111a12; border: 1px solid #1e2d1e; border-radius: 16px;
-          padding: 22px; position: relative; overflow: hidden;
-          transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        }
-        .qstat:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-          border-color: #2a3d2a;
-        }
-
+        .fl-tab { padding: 11px 28px; border-radius: 8px; font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.25s ease; outline: none; }
+        .fl-tab-active { background: #00ff57 !important; color: #000 !important; border: 1px solid #00ff57 !important; box-shadow: 0 6px 20px rgba(0,255,87,0.28); }
+        .fl-tab-inactive { background: #131c14 !important; color: #8a9e8a !important; border: 1px solid #1e2d1e !important; }
+        .fl-tab-inactive:hover { color: #e5e7eb !important; border-color: #2a3d2a !important; background: #182118 !important; }
+        .qstat { background: #111a12; border: 1px solid #1e2d1e; border-radius: 16px; padding: 22px; position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+        .qstat:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); border-color: #2a3d2a; }
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: #0a0f0b; }
         ::-webkit-scrollbar-thumb { background: #00ff5740; border-radius: 2px; }
-
         @media (max-width: 768px) {
           .stats-grid      { grid-template-columns: 1fr 1fr !important; }
           .card-header-row { flex-direction: column !important; align-items: flex-start !important; }
@@ -413,7 +406,6 @@ const Dashboard = () => {
         }
       `}</style>
 
-      {/* Background gradient — zIndex -1 so it never covers footer */}
       <div
         style={{
           position: "fixed",
@@ -434,7 +426,7 @@ const Dashboard = () => {
           padding: "clamp(80px,10vw,110px) clamp(16px,4vw,32px) 60px",
         }}
       >
-        {/* ── HEADER ──────────────────────────────────────────────── */}
+        {/* HEADER */}
         <div
           className="db-enter"
           style={{ marginBottom: 36, animationDelay: "0s" }}
@@ -518,7 +510,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* ── QUICK STATS ─────────────────────────────────────────── */}
+        {/* QUICK STATS */}
         <div
           className="db-enter stats-grid"
           style={{
@@ -532,26 +524,26 @@ const Dashboard = () => {
           {[
             {
               label: "Exercises Today",
-              value: exerciseCount,
+              value: isRestDay ? "Rest" : exerciseCount,
               color: "#00ff57",
               icon: "🏋️",
             },
             {
               label: "Total Calories",
-              value: `${totalCalories}`,
+              value: isRestDay ? "—" : `${totalCalories}`,
               color: "#ff9f43",
               icon: "🔥",
-              sub: "kcal",
+              sub: isRestDay ? "" : "kcal",
             },
             {
               label: "Meals Planned",
-              value: todayPlan?.diets?.length || 0,
+              value: isRestDay ? "—" : todayPlan?.diets?.length || 0,
               color: "#00cfff",
               icon: "🥗",
             },
             {
               label: "Plan Active",
-              value: todayPlan ? "Yes" : "None",
+              value: hasPlan ? "Yes" : "None",
               color: "#ff6b9d",
               icon: "📋",
             },
@@ -612,7 +604,7 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* ── MAIN CARD ───────────────────────────────────────────── */}
+        {/* MAIN CARD */}
         <div
           style={{
             background: "#111a12",
@@ -681,7 +673,8 @@ const Dashboard = () => {
                   Training &amp; Nutrition
                 </h2>
               </div>
-              {todayPlan && (
+              {/* Only show tabs when there's actual schedule data today */}
+              {todayPlan && !isRestDay && (
                 <div
                   style={{
                     display: "flex",
@@ -709,7 +702,8 @@ const Dashboard = () => {
 
           {/* Card body */}
           <div style={{ padding: "28px" }}>
-            {!todayPlan ? (
+            {/* Case 1: No plan enrolled */}
+            {!hasPlan && (
               <div style={{ textAlign: "center", padding: "60px 24px" }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>🏃</div>
                 <h3
@@ -737,6 +731,7 @@ const Dashboard = () => {
                   You haven't enrolled in a workout plan yet. Browse our plans
                   to get started.
                 </p>
+
                 <a
                   href="/plans"
                   style={{
@@ -767,81 +762,183 @@ const Dashboard = () => {
                   Browse Plans →
                 </a>
               </div>
-            ) : activeTab === "exercises" ? (
-              <WorkoutDay dayData={todayPlan} />
-            ) : (
-              <div>
+            )}
+
+            {/* Case 2: Plan enrolled but today is a rest day */}
+            {hasPlan && isRestDay && (
+              <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                <div
+                  style={{
+                    fontSize: 64,
+                    marginBottom: 20,
+                    animation: "restFloat 3s ease-in-out infinite",
+                  }}
+                >
+                  😴
+                </div>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "rgba(0,207,255,0.07)",
+                    border: "1px solid rgba(0,207,255,0.2)",
+                    borderRadius: 999,
+                    padding: "6px 18px",
+                    marginBottom: 20,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono',monospace",
+                      fontSize: 11,
+                      color: "#00cfff",
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {getDayName()} · Rest Day
+                  </span>
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "'Barlow Condensed',sans-serif",
+                    fontWeight: 900,
+                    fontStyle: "italic",
+                    fontSize: "clamp(28px,4vw,42px)",
+                    textTransform: "uppercase",
+                    marginBottom: 14,
+                    color: "#f0f0f0",
+                    lineHeight: 1,
+                  }}
+                >
+                  No Training Today
+                </h3>
+                <p
+                  style={{
+                    color: "#8a9e8a",
+                    fontSize: 15,
+                    fontWeight: 400,
+                    maxWidth: 400,
+                    margin: "0 auto 28px",
+                    lineHeight: 1.8,
+                  }}
+                >
+                  Today is a scheduled rest day in your plan. Recovery is just
+                  as important as training — use this time to recharge, stretch,
+                  or stay hydrated.
+                </p>
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: 22,
+                    justifyContent: "center",
                     flexWrap: "wrap",
                     gap: 12,
                   }}
                 >
-                  <h3
-                    style={{
-                      fontFamily: "'Barlow Condensed',sans-serif",
-                      fontWeight: 800,
-                      fontSize: "clamp(20px,3vw,26px)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.02em",
-                      margin: 0,
-                      color: "#f0f0f0",
-                    }}
-                  >
-                    Today's Nutrition
-                  </h3>
-                  {totalCalories > 0 && (
-                    <div
+                  {[
+                    "💧 Stay Hydrated",
+                    "🧘 Light Stretching",
+                    "😴 Prioritize Sleep",
+                  ].map((tip) => (
+                    <span
+                      key={tip}
                       style={{
-                        background: "rgba(255,159,67,0.08)",
-                        border: "1px solid rgba(255,159,67,0.2)",
+                        fontFamily: "'JetBrains Mono',monospace",
+                        fontSize: 12,
+                        color: "#6b7280",
+                        background: "#111a12",
+                        border: "1px solid #1e2d1e",
                         borderRadius: 999,
-                        padding: "6px 16px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
+                        padding: "8px 16px",
                       }}
                     >
-                      <span style={{ fontSize: 14 }}>🔥</span>
-                      <span
-                        style={{
-                          fontFamily: "'JetBrains Mono',monospace",
-                          fontSize: 12,
-                          color: "#ff9f43",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {totalCalories} total kcal
-                      </span>
-                    </div>
-                  )}
+                      {tip}
+                    </span>
+                  ))}
                 </div>
-                {todayPlan?.diets?.length ? (
+              </div>
+            )}
+
+            {/* Case 3: Plan enrolled and has schedule today */}
+            {hasPlan &&
+              !isRestDay &&
+              todayPlan &&
+              (activeTab === "exercises" ? (
+                <WorkoutDay dayData={todayPlan} />
+              ) : (
+                <div>
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      gap: 14,
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 22,
+                      flexWrap: "wrap",
+                      gap: 12,
                     }}
                   >
-                    {todayPlan.diets.map((diet, i) => (
-                      <DietCard key={i} diet={diet} index={i} />
-                    ))}
+                    <h3
+                      style={{
+                        fontFamily: "'Barlow Condensed',sans-serif",
+                        fontWeight: 800,
+                        fontSize: "clamp(20px,3vw,26px)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.02em",
+                        margin: 0,
+                        color: "#f0f0f0",
+                      }}
+                    >
+                      Today's Nutrition
+                    </h3>
+                    {totalCalories > 0 && (
+                      <div
+                        style={{
+                          background: "rgba(255,159,67,0.08)",
+                          border: "1px solid rgba(255,159,67,0.2)",
+                          borderRadius: 999,
+                          padding: "6px 16px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span style={{ fontSize: 14 }}>🔥</span>
+                        <span
+                          style={{
+                            fontFamily: "'JetBrains Mono',monospace",
+                            fontSize: 12,
+                            color: "#ff9f43",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {totalCalories} total kcal
+                        </span>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "48px 24px" }}>
-                    <div style={{ fontSize: 40, marginBottom: 14 }}>🥗</div>
-                    <p style={{ color: "#8a9e8a", fontSize: 15 }}>
-                      No diet schedule for today
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+                  {todayPlan?.diets?.length ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 14,
+                      }}
+                    >
+                      {todayPlan.diets.map((diet, i) => (
+                        <DietCard key={i} diet={diet} index={i} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: "center", padding: "48px 24px" }}>
+                      <div style={{ fontSize: 40, marginBottom: 14 }}>🥗</div>
+                      <p style={{ color: "#8a9e8a", fontSize: 15 }}>
+                        No diet schedule for today
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
         </div>
       </div>

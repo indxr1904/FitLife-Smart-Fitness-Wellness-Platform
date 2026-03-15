@@ -5,6 +5,7 @@ import { signInWithGooglePopup } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
 import { auth } from "../firebase";
 import { API_BASE_URL } from "../../api/api";
+import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -64,7 +65,7 @@ const Login = () => {
       else navigate("/dashboard");
     } catch (error) {
       console.error("Login error", error.response?.data);
-      alert(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 

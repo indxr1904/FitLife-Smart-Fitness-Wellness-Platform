@@ -4,6 +4,7 @@ import { auth, signInWithGooglePopup } from "../firebase";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { API_BASE_URL } from "../../api/api";
+import { ToastContainer, toast } from "react-toastify";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -66,7 +67,10 @@ const Register = () => {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert("User already exists. Please login!");
+      // alert("User already exists. Please login!");
+
+      // It should instead be reading the server message:
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 

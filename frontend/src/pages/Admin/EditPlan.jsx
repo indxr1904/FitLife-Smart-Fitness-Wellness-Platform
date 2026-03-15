@@ -38,6 +38,7 @@ const EditPlan = () => {
         setGoal(plan.goal || "general fitness");
         setActiveDays(plan.activeDays || []);
         setSchedule(plan.schedule || []);
+        setImage(plan.image || "");
       } catch (err) {
         console.error("Error fetching data:", err);
       }

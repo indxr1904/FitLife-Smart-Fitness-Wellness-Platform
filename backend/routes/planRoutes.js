@@ -125,7 +125,7 @@ router.get("/my-plan/:id", async (req, res) => {
       .toLowerCase();
 
     const todaySchedule = plan.schedule.find(
-      (day) => day.dayName.toLowerCase() === today
+      (day) => day.dayName.toLowerCase() === today,
     );
 
     if (!todaySchedule) {
